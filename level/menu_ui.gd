@@ -26,6 +26,10 @@ var downloading_update := false
 # ==============================
 
 func _ready() -> void:
+	# Connect update button
+	if not update_button.pressed.is_connected(_on_update_button_pressed):
+		update_button.pressed.connect(_on_update_button_pressed)
+
 	# Server setup
 	if OS.has_feature("server"):
 		Network.start_server()
