@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d2dnegrrq3qi7"]
 
-[ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/crate.gd" id="1_nlbrl"]
+[ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/sellable_object.gd" id="1_nlbrl"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_invjh"]
 [ext_resource type="Script" uid="uid://dut3ybyur25xo" path="res://script/object_definition.gd" id="2_jlghd"]
 [ext_resource type="Texture2D" uid="uid://cj68lurdyex41" path="res://assets/texture/prototypes/dark/texture_05.png" id="3_invjh"]
@@ -11,22 +11,22 @@ object_name = "Barrel"
 metadata/_custom_type_script = "uid://dut3ybyur25xo"
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jlghd"]
-properties/0/path = NodePath("Crate:position")
+properties/0/path = NodePath("Crate:rotation")
 properties/0/spawn = true
 properties/0/replication_mode = 1
-properties/1/path = NodePath("Crate:rotation")
+properties/1/path = NodePath("Crate:rarity")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath("Crate:rarity")
+properties/2/path = NodePath("Crate:sell_value")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("Crate:sell_value")
+properties/3/path = NodePath("SellableObject:linear_velocity")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath("SellableObject:linear_velocity")
+properties/4/path = NodePath("SellableObject:angular_velocity")
 properties/4/spawn = true
 properties/4/replication_mode = 1
-properties/5/path = NodePath("SellableObject:angular_velocity")
+properties/5/path = NodePath("Barrel:position")
 properties/5/spawn = true
 properties/5/replication_mode = 1
 
@@ -37,7 +37,7 @@ albedo_texture = ExtResource("3_invjh")
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_8rp5v"]
 
-[node name="SellableObject" type="RigidBody3D" unique_id=2108653769]
+[node name="Barrel" type="RigidBody3D" unique_id=2108653769 groups=["Grabbable"]]
 mass = 15.0
 script = ExtResource("1_nlbrl")
 object_definition = SubResource("Resource_gde2f")
