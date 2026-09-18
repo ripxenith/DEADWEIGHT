@@ -1,8 +1,10 @@
 extends RigidBody3D
 
+
 @export var object_definition: ObjectDefinition
 
 @onready var price_label: Label3D = $price
+
 
 var rarity: String = "Common"
 var sell_value: int = 0
@@ -13,16 +15,33 @@ var normal_gravity_scale: float = 1.0
 func _ready() -> void:
 	normal_gravity_scale = gravity_scale
 
-	if object_definition:
-		rarity = ObjectGenerator.generate_rarity()
+	# Only the multiplayer authority generates the object's value.
+	if is_multiplayer_authority():
+		generate_value()
 
-		sell_value = ObjectGenerator.generate_value(
-			object_definition.base_value,
-			rarity
-		)
+	update_price_display()
 
-		price_label.text = str("$", sell_value)
-		price_label.modulate = get_rarity_color(rarity)
+
+func generate_value() -> void:
+	if object_definition == null:
+		return
+
+	rarity = ObjectGenerator.generate_rarity()
+
+	sell_value = ObjectGenerator.generate_value(
+		object_definition.base_value,
+		rarity
+	)
+
+	update_price_display()
+
+
+func update_price_display() -> void:
+	if price_label == null:
+		return
+
+	price_label.text = str("$", sell_value)
+	price_label.modulate = get_rarity_color(rarity)
 
 
 func get_rarity_color(rarity_name: String) -> Color:

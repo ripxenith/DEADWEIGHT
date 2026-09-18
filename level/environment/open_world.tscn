@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://dorstubhqk8wa"]
 
+[ext_resource type="PackedScene" uid="uid://cvpk5e5io237d" path="res://assets/object/crate.tscn" id="1_bb2yp"]
 [ext_resource type="PackedScene" uid="uid://bsbh6jnpj5xho" path="res://assets/ship/ship.tscn" id="2_u4deq"]
 [ext_resource type="Shader" uid="uid://cobmmovbf5cq8" path="res://level/environment/space_clouds.gdshader" id="3_t4ism"]
 [ext_resource type="Shader" uid="uid://d27u66xogwr47" path="res://level/environment/starfield.gdshader" id="4_e4d72"]
@@ -122,6 +123,15 @@ shader_parameter/corona_strength = 21.675
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_7u2yt")
 
 [node name="OpenWorld" type="Node3D" unique_id=2032529273]
+
+[node name="crate" parent="." unique_id=1968973843 instance=ExtResource("1_bb2yp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.9, 0, -33)
+
+[node name="crate2" parent="." unique_id=628074455 instance=ExtResource("1_bb2yp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 0, -33)
+
+[node name="crate3" parent="." unique_id=211313740 instance=ExtResource("1_bb2yp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.4, 1.2, -33)
 
 [node name="Background" type="Node3D" parent="." unique_id=887714701]
 
