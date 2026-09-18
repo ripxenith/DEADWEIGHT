@@ -9,7 +9,7 @@ const PLAYER = preload("res://assets/player/player.tscn")
 
 const CURRENT_VERSION := "0.0.1"
 
-const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/main/version.json"
+const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 const UPDATER_NAME := "DEADWEIGHTUpdater.exe"
 
