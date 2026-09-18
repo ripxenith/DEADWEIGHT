@@ -194,8 +194,8 @@ func _on_version_request_completed(
 
 	latest_version = str(version_data["version"])
 
-	if version_data.has("url"):
-		update_url = str(version_data["url"])
+	if version_data.has("download"):
+		update_url = str(version_data["download"])
 
 	print_debug(
 		"Current version: "
