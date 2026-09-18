@@ -172,12 +172,29 @@ func _ready() -> void:
 	thruster_bar.value = 100.0
 	thruster_bar.visible = false
 
-	# Local player setup
+	# --------------------------------------------------------
+	# LOCAL PLAYER
+	# --------------------------------------------------------
+
 	if is_multiplayer_authority():
 		camera_3d.current = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+		# Only the local player gets a visible UI.
+		player_ui.show()
+
+		# Hide our own character model.
 		playermodel.hide()
+
+	# --------------------------------------------------------
+	# REMOTE PLAYERS
+	# --------------------------------------------------------
+
 	else:
+		# Remote players should never display their UI.
+		player_ui.hide()
+
+		# Remote players should display their character model.
 		playermodel.show()
 
 
@@ -717,8 +734,10 @@ func _process(_delta: float) -> void:
 	update_debug_info()
 	update_object_info()
 	update_grab_ui()
-	handle_interaction()
+
+	# Throw first so throwing takes priority over interaction.
 	handle_throw()
+	handle_interaction()
 
 
 # ============================================================

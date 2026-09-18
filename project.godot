@@ -23,6 +23,7 @@ config/icon="uid://dnh77x7pabi7"
 Network="*uid://b0opn5i08s3a1"
 TileRunInstancesGlobal="*uid://b6fg6pu2bfi14"
 CyclopsAutoload="*uid://4siqre3jhe80"
+SteamManager="*uid://c8ex7vu4mplc3"
 
 [display]
 

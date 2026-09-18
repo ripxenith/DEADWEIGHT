@@ -1,9 +1,6 @@
 [gd_scene format=3 uid="uid://dorstubhqk8wa"]
 
-[ext_resource type="PackedScene" uid="uid://cvpk5e5io237d" path="res://assets/object/crate.tscn" id="1_bb2yp"]
-[ext_resource type="Texture2D" uid="uid://dnqxj8tp5uati" path="res://assets/texture/prototypes/dark/texture_08.png" id="1_yk3vb"]
 [ext_resource type="PackedScene" uid="uid://bsbh6jnpj5xho" path="res://assets/ship/ship.tscn" id="2_u4deq"]
-[ext_resource type="Script" uid="uid://bxii5dcbmf734" path="res://level/environment/gravity_area.gd" id="3_e4d72"]
 [ext_resource type="Shader" uid="uid://cobmmovbf5cq8" path="res://level/environment/space_clouds.gdshader" id="3_t4ism"]
 [ext_resource type="Shader" uid="uid://d27u66xogwr47" path="res://level/environment/starfield.gdshader" id="4_e4d72"]
 [ext_resource type="Shader" uid="uid://0mmn22aieiyh" path="res://level/environment/sun.gdshader" id="5_elgv3"]
@@ -27,49 +24,9 @@ ssao_enabled = true
 ssil_enabled = true
 glow_enabled = true
 glow_normalized = true
-glow_intensity = 1.15
-glow_bloom = 0.14
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bb2yp"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_77xhg"]
-transparency = 1
-albedo_color = Color(1, 1, 1, 0.37254903)
-
-[sub_resource type="BoxMesh" id="BoxMesh_yq7kc"]
-material = SubResource("StandardMaterial3D_77xhg")
-size = Vector3(10, 0.25, 10)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_dwuyu"]
-size = Vector3(10, 0.3, 10)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1yyr0"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq7kc"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="BoxMesh" id="BoxMesh_dwuyu"]
-size = Vector3(10, 5, 0.25)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_qj467"]
-size = Vector3(10.009842, 5.0224304, 0.2690735)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t4ism"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e4d72"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_elgv3"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u4deq"]
-albedo_texture = ExtResource("1_yk3vb")
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ug8wy"]
-size = Vector3(29.9, 5.2000003, 19.9)
+glow_intensity = 0.25
+glow_strength = 0.5
+glow_bloom = 0.08
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gxfw8"]
 render_priority = 0
@@ -124,8 +81,6 @@ shader_parameter/min_twinkle_speed = 0.1430000067925
 shader_parameter/max_twinkle_speed = 1.8490000878275
 shader_parameter/twinkle_strength = 0.2530000120175
 
-[sub_resource type="BoxMesh" id="BoxMesh_elgv3"]
-
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_na563"]
 seed = -13
 frequency = 0.0546
@@ -168,37 +123,56 @@ shader_parameter/noise_texture = SubResource("NoiseTexture2D_7u2yt")
 
 [node name="OpenWorld" type="Node3D" unique_id=2032529273]
 
-[node name="PlayerSpawns" type="Node3D" parent="." unique_id=1804665080]
+[node name="Background" type="Node3D" parent="." unique_id=887714701]
 
-[node name="Spawn" type="Marker3D" parent="PlayerSpawns" unique_id=1373310591]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -42)
-
-[node name="Spawn2" type="Marker3D" parent="PlayerSpawns" unique_id=1891635308]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -17)
-
-[node name="Spawn3" type="Marker3D" parent="PlayerSpawns" unique_id=970158365]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39, 0, -17)
-
-[node name="Spawn4" type="Marker3D" parent="PlayerSpawns" unique_id=403600688]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -17)
-
-[node name="crate2" parent="." unique_id=1495645362 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -75.902664, 39, -80)
-
-[node name="crate4" parent="." unique_id=1968973843 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.011837, 0.7836666, -36.092213)
-
-[node name="crate5" parent="." unique_id=309932448 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.011837, 0.7836666, -22.877354)
-
-[node name="crate3" parent="." unique_id=311152941 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78, 39, -80)
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=594947130]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Background" unique_id=594947130]
 environment = SubResource("Environment_bb2yp")
 
-[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=817869054]
-transform = Transform3D(-0.4997463, 0.25137997, -0.8288919, -0.021927956, 0.95298165, 0.30223352, 0.8658942, 0.16921598, -0.4707368, -26533.445, 12098.786, -15240.4)
+[node name="spaceclouds" type="Node3D" parent="Background" unique_id=830922804]
+
+[node name="spaceclouds" type="CSGSphere3D" parent="Background/spaceclouds" unique_id=2022525371]
+transform = Transform3D(495, 0, 0, 0, 495, 0, 0, 0, 495, 0, 0, 0)
+layers = 524288
+flip_faces = true
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_gxfw8")
+
+[node name="starfield" type="Node3D" parent="Background" unique_id=304309612]
+
+[node name="starfield" type="CSGSphere3D" parent="Background/starfield" unique_id=1073729112]
+transform = Transform3D(500, 0, 0, 0, 500, 0, 0, 0, 500, 0.023364067, 4.7683716e-07, 0.01848507)
+layers = 524288
+ignore_occlusion_culling = true
+flip_faces = true
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_1yyr0")
+
+[node name="sun" type="Node3D" parent="Background" unique_id=122307106]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29546.557, 12098.786, -17329.87)
+
+[node name="surface" type="CSGSphere3D" parent="Background/sun" unique_id=939352845]
+transform = Transform3D(45, 0, 0, 0, 45, 0, 0, 0, 45, -1696.637, 24.456034, -24.660772)
+layers = 524288
+calculate_tangents = false
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_66fw3")
+
+[node name="atmosphere" type="CSGSphere3D" parent="Background/sun" unique_id=687689385]
+transform = Transform3D(48, 0, 0, 0, 48, 0, 0, 0, 48, -1696.637, 24.456034, -24.660772)
+layers = 524288
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_yhp2s")
+
+[node name="SunLight" type="DirectionalLight3D" parent="Background" unique_id=817869054]
+transform = Transform3D(-0.4997463, 0.25137997, -0.8288919, -0.021927956, 0.95298165, 0.30223352, 0.8658942, 0.16921599, -0.47073683, -26533.445, 12098.786, -15240.4)
 light_color = Color(1, 0.98933333, 0.98, 1)
 light_energy = 8.0
 light_specular = 1.853
@@ -216,387 +190,26 @@ directional_shadow_fade_start = 0.9
 directional_shadow_max_distance = 256.0
 directional_shadow_pancake_size = 10.0
 
+[node name="PlayerSpawns" type="Node3D" parent="." unique_id=1804665080]
+
+[node name="Spawn" type="Marker3D" parent="PlayerSpawns" unique_id=1373310591]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -42)
+
+[node name="Spawn2" type="Marker3D" parent="PlayerSpawns" unique_id=1891635308]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -17)
+
+[node name="Spawn3" type="Marker3D" parent="PlayerSpawns" unique_id=970158365]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -17)
+
+[node name="Spawn4" type="Marker3D" parent="PlayerSpawns" unique_id=403600688]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -38)
+
 [node name="ship" parent="." unique_id=41042865 instance=ExtResource("2_u4deq")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 7, 0, -39)
-
-[node name="ShipWreck" type="Node3D" parent="." unique_id=1295255395]
-transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, -70.200005, 37.6, -86.1)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ShipWreck" unique_id=516789046]
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D" unique_id=1184044160]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D/StaticBody3D" unique_id=350454988]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="ShipWreck" unique_id=866816202]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D2" unique_id=1741649176]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D2/StaticBody3D" unique_id=1075854530]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="ShipWreck" unique_id=506173842]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -10)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D5" unique_id=1389033556]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D5/StaticBody3D" unique_id=1040319789]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="ShipWreck" unique_id=2017250478]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D6" unique_id=185650247]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D6/StaticBody3D" unique_id=1838502021]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D7" type="MeshInstance3D" parent="ShipWreck" unique_id=443540712]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 5.2, 0)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D7" unique_id=2653911]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D7/StaticBody3D" unique_id=234807796]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="ShipWreck" unique_id=1741031098]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, 0)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D8" unique_id=967217751]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D8/StaticBody3D" unique_id=897649605]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D9" type="MeshInstance3D" parent="ShipWreck" unique_id=1635683983]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5.2, 0)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D9" unique_id=544104077]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D9/StaticBody3D" unique_id=281772612]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D10" type="MeshInstance3D" parent="ShipWreck" unique_id=811093421]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5.2, -10)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D10" unique_id=555458836]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D10/StaticBody3D" unique_id=2127454414]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D11" type="MeshInstance3D" parent="ShipWreck" unique_id=347872595]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -10)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D11" unique_id=63895191]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D11/StaticBody3D" unique_id=396332095]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D12" type="MeshInstance3D" parent="ShipWreck" unique_id=1336860352]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 5.2, -10)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D12" unique_id=1571737285]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D12/StaticBody3D" unique_id=671847276]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="ShipWreck" unique_id=1934301604]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -10)
-material_override = SubResource("StandardMaterial3D_1yyr0")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D3" unique_id=1752214537]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D3/StaticBody3D" unique_id=585579811]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="ShipWreck" unique_id=218747496]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
-material_override = SubResource("StandardMaterial3D_bb2yp")
-mesh = SubResource("BoxMesh_yq7kc")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D4" unique_id=1282234258]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D4/StaticBody3D" unique_id=319574883]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.049999982, 0)
-shape = SubResource("BoxShape3D_dwuyu")
-
-[node name="SpotLight3D2" type="SpotLight3D" parent="ShipWreck" unique_id=1565368153]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 9, 5.2, -5)
-spot_range = 13.970293
-spot_attenuation = -1.04
-spot_angle = 59.90157
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="ShipWreck/SpotLight3D2" unique_id=370277209]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
-
-[node name="SpotLight3D5" type="SpotLight3D" parent="ShipWreck" unique_id=952149326]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 9, 5.2, -5)
-spot_range = 13.970293
-spot_attenuation = -1.04
-spot_angle = 59.90157
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="ShipWreck/SpotLight3D5" unique_id=1608238177]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
-
-[node name="SpotLight3D3" type="SpotLight3D" parent="ShipWreck" unique_id=1612919125]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -7, 5.2, -5)
-spot_range = 13.970293
-spot_attenuation = -1.04
-spot_angle = 59.90157
-
-[node name="OmniLight3D" type="OmniLight3D" parent="ShipWreck/SpotLight3D3" unique_id=1996786302]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
-
-[node name="SpotLight3D4" type="SpotLight3D" parent="ShipWreck" unique_id=1205724669]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 1, 5.2, -5)
-spot_range = 13.970293
-spot_attenuation = -1.04
-spot_angle = 59.90157
-
-[node name="OmniLight3D" type="OmniLight3D" parent="ShipWreck/SpotLight3D4" unique_id=1089775530]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
-
-[node name="MeshInstance3D13" type="MeshInstance3D" parent="ShipWreck" unique_id=2059215744]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.000001, 2.6000001, 5)
-material_override = SubResource("StandardMaterial3D_yq7kc")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D13" unique_id=1765109643]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D13/StaticBody3D" unique_id=865112458]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D14" type="MeshInstance3D" parent="ShipWreck" unique_id=220808627]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.536743e-07, 2.6000001, 5)
-material_override = SubResource("StandardMaterial3D_t4ism")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D14" unique_id=296011229]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D14/StaticBody3D" unique_id=899264235]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D15" type="MeshInstance3D" parent="ShipWreck" unique_id=1433165546]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.999999, 2.6000001, 5)
-material_override = SubResource("StandardMaterial3D_e4d72")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D15" unique_id=1209901664]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D15/StaticBody3D" unique_id=839704973]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D18" type="MeshInstance3D" parent="ShipWreck" unique_id=242638695]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.000001, 2.6000001, -15)
-material_override = SubResource("StandardMaterial3D_yq7kc")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D18" unique_id=976596324]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D18/StaticBody3D" unique_id=166047860]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D20" type="MeshInstance3D" parent="ShipWreck" unique_id=1526968788]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.999999, 2.6000001, -15)
-material_override = SubResource("StandardMaterial3D_e4d72")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D20" unique_id=1134507979]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D20/StaticBody3D" unique_id=1418866503]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D16" type="MeshInstance3D" parent="ShipWreck" unique_id=1270420769]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 14.999999, 2.6000001, 0)
-material_override = SubResource("StandardMaterial3D_elgv3")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D16" unique_id=2145936969]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D16/StaticBody3D" unique_id=47828479]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D17" type="MeshInstance3D" parent="ShipWreck" unique_id=597056376]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 14.999999, 2.6000001, -10)
-material_override = SubResource("StandardMaterial3D_u4deq")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D17" unique_id=2086075491]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D17/StaticBody3D" unique_id=1317352231]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D21" type="MeshInstance3D" parent="ShipWreck" unique_id=2097915096]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -15.000001, 2.6000001, 0)
-material_override = SubResource("StandardMaterial3D_elgv3")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D21" unique_id=205466191]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D21/StaticBody3D" unique_id=565247226]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="MeshInstance3D22" type="MeshInstance3D" parent="ShipWreck" unique_id=1872673281]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -15.000001, 2.6000001, -10)
-material_override = SubResource("StandardMaterial3D_u4deq")
-mesh = SubResource("BoxMesh_dwuyu")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ShipWreck/MeshInstance3D22" unique_id=530496143]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/MeshInstance3D22/StaticBody3D" unique_id=524527370]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003730774, 0.007217407, 0.006668091)
-shape = SubResource("BoxShape3D_qj467")
-
-[node name="OmniLight3D" type="OmniLight3D" parent="ShipWreck" unique_id=92963418]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="ShipWreck" unique_id=77561097]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, 4)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="ShipWreck" unique_id=291299038]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 1, 0)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D4" type="OmniLight3D" parent="ShipWreck" unique_id=1946133171]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 1, -10)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D5" type="OmniLight3D" parent="ShipWreck" unique_id=95485257]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, -14)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D6" type="OmniLight3D" parent="ShipWreck" unique_id=870020644]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -14)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D7" type="OmniLight3D" parent="ShipWreck" unique_id=327658140]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, -14)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D8" type="OmniLight3D" parent="ShipWreck" unique_id=594018080]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -10)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D9" type="OmniLight3D" parent="ShipWreck" unique_id=927950931]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, 0)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="OmniLight3D10" type="OmniLight3D" parent="ShipWreck" unique_id=371144119]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, 4)
-omni_range = 6.0
-omni_attenuation = -0.019
-
-[node name="ShipGravity" type="Area3D" parent="ShipWreck" unique_id=449435537]
-script = ExtResource("3_e4d72")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShipWreck/ShipGravity" unique_id=1117636444]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.074394226, 2.702385, -4.921196)
-shape = SubResource("BoxShape3D_ug8wy")
-
-[node name="spaceclouds" type="Node3D" parent="." unique_id=830922804]
-
-[node name="spaceclouds" type="CSGSphere3D" parent="spaceclouds" unique_id=2022525371]
-transform = Transform3D(495, 0, 0, 0, 495, 0, 0, 0, 495, 0, 0, 0)
-layers = 524288
-flip_faces = true
-radius = 100.0
-radial_segments = 32
-rings = 32
-material = SubResource("ShaderMaterial_gxfw8")
-
-[node name="starfield" type="Node3D" parent="." unique_id=304309612]
-
-[node name="starfield" type="CSGSphere3D" parent="starfield" unique_id=1073729112]
-transform = Transform3D(500, 0, 0, 0, 500, 0, 0, 0, 500, 0.023364067, 4.7683716e-07, 0.01848507)
-layers = 524288
-ignore_occlusion_culling = true
-flip_faces = true
-radius = 100.0
-radial_segments = 32
-rings = 32
-material = SubResource("ShaderMaterial_1yyr0")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=115409811]
-transform = Transform3D(-0.49974623, 0.25138, -0.82889193, -0.021927956, 0.9529817, 0.30223352, 0.8658943, 0.16921598, -0.47073674, -26529.094, 12096.786, -15237.288)
-mesh = SubResource("BoxMesh_elgv3")
-
-[node name="sun" type="Node3D" parent="." unique_id=122307106]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29546.557, 12098.786, -17329.87)
-
-[node name="surface" type="CSGSphere3D" parent="sun" unique_id=939352845]
-transform = Transform3D(45, 0, 0, 0, 45, 0, 0, 0, 45, -1696.637, 24.456034, -24.660772)
-layers = 524288
-calculate_tangents = false
-radius = 100.0
-radial_segments = 32
-rings = 32
-material = SubResource("ShaderMaterial_66fw3")
-
-[node name="atmosphere" type="CSGSphere3D" parent="sun" unique_id=687689385]
-transform = Transform3D(48, 0, 0, 0, 48, 0, 0, 0, 48, -1696.637, 24.456034, -24.660772)
-layers = 524288
-radius = 100.0
-radial_segments = 32
-rings = 32
-material = SubResource("ShaderMaterial_yhp2s")
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6, 0, -44)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=554076199]
 transform = Transform3D(0.5, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.5, -12.571188, 3, -18.669659)
 far = 999999.0
 
-[node name="Node3D" type="Node3D" parent="." unique_id=13053390]
-
-[node name="Colony" parent="Node3D" unique_id=1563406623 instance=ExtResource("9_ot5wp")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 45, 0, -34.1)
+[node name="Colony" parent="." unique_id=1563406623 instance=ExtResource("9_ot5wp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, -1, -26.099998)
