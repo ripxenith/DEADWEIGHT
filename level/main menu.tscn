@@ -3,6 +3,7 @@
 [ext_resource type="Shader" uid="uid://cobmmovbf5cq8" path="res://level/environment/space_clouds.gdshader" id="1_hotrt"]
 [ext_resource type="Shader" uid="uid://d27u66xogwr47" path="res://level/environment/starfield.gdshader" id="2_webmu"]
 [ext_resource type="Shader" uid="uid://0mmn22aieiyh" path="res://level/environment/sun.gdshader" id="3_gxowf"]
+[ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="4_gfeb6"]
 [ext_resource type="Shader" uid="uid://c4ku0qqwjgb6t" path="res://level/environment/sun_atmosphere.gdshader" id="4_vlynq"]
 [ext_resource type="Theme" uid="uid://c6p2l2s66xekd" path="res://assets/theme/menu_theme.tres" id="5_gxowf"]
 [ext_resource type="FontFile" uid="uid://cbng15y6liymn" path="res://assets/font/Pointless.ttf" id="5_webmu"]
@@ -175,6 +176,37 @@ text = "settings
 layout_mode = 2
 text = "quit game
 "
+
+[node name="UpdateButton" type="Button" parent="menu ui" unique_id=1188586297]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -81.5
+offset_top = -13.5
+offset_right = 81.5
+offset_bottom = 17.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "UPDATE GAME"
+
+[node name="UpdateStatus" type="Label" parent="menu ui" unique_id=1578077335]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = 28.5
+offset_right = 20.0
+offset_bottom = 51.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("4_gfeb6")
+text = "Update Status..."
 
 [node name="background" type="Node3D" parent="." unique_id=1352294118 groups=["Grabbable"]]
 visible = false
