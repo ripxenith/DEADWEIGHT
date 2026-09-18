@@ -365,7 +365,6 @@ func _on_update_download_completed(
 func create_update_script(update_zip_path: String) -> void:
 	var game_executable := OS.get_executable_path()
 	var game_directory := game_executable.get_base_dir()
-
 	var game_pid := OS.get_process_id()
 
 	var script_path := OS.get_user_data_dir().path_join(
@@ -376,7 +375,6 @@ func create_update_script(update_zip_path: String) -> void:
 		"DEADWEIGHT_update_extracted"
 	)
 
-	# Escape paths for PowerShell single-quoted strings.
 	var escaped_game_executable := powershell_escape(game_executable)
 	var escaped_game_directory := powershell_escape(game_directory)
 	var escaped_zip_path := powershell_escape(update_zip_path)
@@ -393,22 +391,37 @@ $ZipPath = '%s'
 $ExtractDirectory = '%s'
 $ScriptPath = '%s'
 
-Write-Host "DEADWEIGHT updater started."
+Write-Host "======================================"
+Write-Host "DEADWEIGHT UPDATER"
+Write-Host "======================================"
+Write-Host "Game: $GameExecutable"
+Write-Host "Game directory: $GameDirectory"
+Write-Host "ZIP: $ZipPath"
+Write-Host ""
 
-# Wait for DEADWEIGHT to close.
-try {
-    Wait-Process -Id $GamePID -Timeout 60
-}
-catch {
-    Write-Host "Game process already closed."
+# Wait until the game process is actually gone.
+Write-Host "Waiting for DEADWEIGHT to close..."
+
+while (Get-Process -Id $GamePID -ErrorAction SilentlyContinue) {
+    Start-Sleep -Milliseconds 250
 }
 
+Write-Host "DEADWEIGHT has closed."
 Start-Sleep -Seconds 1
 
-Write-Host "Preparing update..."
+# Verify ZIP exists.
+if (!(Test-Path $ZipPath)) {
+    Write-Host "ERROR: Update ZIP does not exist!"
+    Read-Host "Press Enter to close"
+    exit
+}
 
-# Remove old extraction directory.
+Write-Host "Update ZIP found."
+Write-Host ""
+
+# Remove previous extraction directory.
 if (Test-Path $ExtractDirectory) {
+    Write-Host "Removing old extraction directory..."
     Remove-Item $ExtractDirectory -Recurse -Force
 }
 
@@ -416,29 +429,40 @@ New-Item -ItemType Directory -Path $ExtractDirectory -Force | Out-Null
 
 Write-Host "Extracting update..."
 
-Expand-Archive -Path $ZipPath -DestinationPath $ExtractDirectory -Force
+Expand-Archive `
+    -Path $ZipPath `
+    -DestinationPath $ExtractDirectory `
+    -Force
 
-Write-Host "Installing files..."
+Write-Host "Extraction complete."
+Write-Host ""
 
-# Find the actual exported game files.
-$FilesToCopy = Get-ChildItem -Path $ExtractDirectory -Force
+# Determine whether the ZIP contains a DEADWEIGHT folder.
+$Items = Get-ChildItem -Path $ExtractDirectory -Force
 
-# If the ZIP contains a single DEADWEIGHT folder,
-# use that folder as the source instead.
-if ($FilesToCopy.Count -eq 1 -and $FilesToCopy[0].PSIsContainer) {
-    $SourceDirectory = $FilesToCopy[0].FullName
+if ($Items.Count -eq 1 -and $Items[0].PSIsContainer) {
+    $SourceDirectory = $Items[0].FullName
 }
 else {
     $SourceDirectory = $ExtractDirectory
 }
 
-# Copy the new game files into the existing game directory.
+Write-Host "Source directory:"
+Write-Host $SourceDirectory
+Write-Host ""
+
+Write-Host "Installing files..."
+
 Copy-Item `
     -Path (Join-Path $SourceDirectory "*") `
     -Destination $GameDirectory `
     -Recurse `
     -Force
 
+Write-Host "Files copied successfully."
+Write-Host ""
+
+# Clean up.
 Write-Host "Cleaning up..."
 
 if (Test-Path $ExtractDirectory) {
@@ -449,13 +473,21 @@ if (Test-Path $ZipPath) {
     Remove-Item $ZipPath -Force
 }
 
+Write-Host "Cleanup complete."
+Write-Host ""
+
 Write-Host "Starting DEADWEIGHT..."
 
-Start-Process -FilePath $GameExecutable
+Start-Process `
+    -FilePath $GameExecutable `
+    -WorkingDirectory $GameDirectory
 
-# Delete this PowerShell script.
+Write-Host "DEADWEIGHT started."
+Write-Host ""
+
 Start-Sleep -Seconds 2
 
+# Delete updater script.
 Remove-Item $ScriptPath -Force
 """ % [
 		game_pid,
@@ -472,35 +504,27 @@ Remove-Item $ScriptPath -Force
 	)
 
 	if file == null:
-		print_debug("Could not create update script.")
+		print_debug("ERROR: Could not create PowerShell script.")
 
 		downloading_update = false
-
 		update_button.text = "UPDATE"
 		update_button.disabled = false
-		update_status.text = "Could not start updater."
+		update_status.text = "Could not create updater."
 
 		return
 
 	file.store_string(script)
 	file.close()
 
-	print_debug(
-		"Created PowerShell updater: "
-		+ script_path
-	)
+	print_debug("PowerShell updater created:")
+	print_debug(script_path)
 
-	start_powershell_updater(
-		script_path
-	)
+	start_powershell_updater(script_path)
 
-
-# ==============================
-# START POWERSHELL
-# ==============================
 
 func start_powershell_updater(script_path: String) -> void:
-	var powershell_path := "powershell.exe"
+	print_debug("Starting PowerShell...")
+	print_debug("Script: " + script_path)
 
 	var arguments := [
 		"-NoProfile",
@@ -510,19 +534,16 @@ func start_powershell_updater(script_path: String) -> void:
 		script_path
 	]
 
-	print_debug("Starting PowerShell updater.")
-
 	var pid := OS.create_process(
-		powershell_path,
+		"powershell.exe",
 		arguments,
-		false
+		true
 	)
 
 	if pid == -1:
-		print_debug("Failed to start PowerShell updater.")
+		print_debug("ERROR: Could not start PowerShell.")
 
 		downloading_update = false
-
 		update_button.text = "UPDATE"
 		update_button.disabled = false
 		update_status.text = "Could not start updater."
@@ -530,11 +551,13 @@ func start_powershell_updater(script_path: String) -> void:
 		return
 
 	print_debug(
-		"PowerShell updater started with PID: "
+		"PowerShell started. PID: "
 		+ str(pid)
 	)
 
-	# The PowerShell script will take over from here.
+	# Give PowerShell a moment to start before closing.
+	await get_tree().create_timer(0.5).timeout
+
 	get_tree().quit()
 
 
