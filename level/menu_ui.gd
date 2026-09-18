@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const CURRENT_VERSION := "0.0.7"
+const CURRENT_VERSION := "0.0.8"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 

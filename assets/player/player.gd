@@ -91,6 +91,8 @@ var is_crouching := false
 var controlling_ship := false
 var controlled_ship: Node3D = null
 
+var player_display_name: String = "Player"
+
 
 # ============================================================
 # UI
@@ -146,7 +148,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	add_to_group("Players")
 
-	player_id_label.text = Steam.getPersonaName()
+	player_id_label.text = player_display_name
 
 	# Camera setup
 	camera_pivot.top_level = false

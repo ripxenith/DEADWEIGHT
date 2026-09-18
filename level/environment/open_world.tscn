@@ -184,7 +184,7 @@ material = SubResource("ShaderMaterial_yhp2s")
 [node name="SunLight" type="DirectionalLight3D" parent="Background" unique_id=817869054]
 transform = Transform3D(-0.4997463, 0.25137997, -0.8288919, -0.021927956, 0.95298165, 0.30223352, 0.8658942, 0.16921599, -0.47073683, -26533.445, 12098.786, -15240.4)
 light_color = Color(1, 0.98933333, 0.98, 1)
-light_energy = 8.0
+light_energy = 3.627
 light_specular = 1.853
 light_cull_mask = 4294443007
 shadow_enabled = true
@@ -218,7 +218,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -38)
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6, 0, -44)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=554076199]
-transform = Transform3D(0.5, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.5, -12.571188, 3, -18.669659)
+transform = Transform3D(0.25881907, 0, -0.9659258, 0, 1, 0, 0.9659259, 0, 0.25881907, 11.428812, 3, -22.669659)
 far = 999999.0
 
 [node name="Colony" parent="." unique_id=1563406623 instance=ExtResource("9_ot5wp")]

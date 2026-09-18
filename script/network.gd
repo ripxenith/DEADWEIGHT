@@ -1,10 +1,12 @@
 extends Node
 
+
 const PLAYER = preload("res://assets/player/player.tscn")
 const WORLD_SCENE := "res://level/environment/open_world.tscn"
 const MAIN_MENU_SCENE := "res://level/main menu.tscn"
 
 const MAX_PLAYERS := 4
+
 
 var steam_peer: SteamMultiplayerPeer = null
 
@@ -13,6 +15,12 @@ var host_steam_id: int = 0
 
 var world_loaded := false
 var is_host := false
+
+# Stores which spawn point belongs to each peer.
+# Example:
+# 1 -> 0
+# 1668488921 -> 1
+var player_spawn_indices: Dictionary = {}
 
 
 func _ready() -> void:
@@ -70,6 +78,8 @@ func host_game() -> void:
 	is_host = true
 	world_loaded = false
 
+	player_spawn_indices.clear()
+
 	print_debug("Creating Steam friends-only lobby...")
 
 	Steam.createLobby(
@@ -117,14 +127,12 @@ func _on_lobby_created(result: int, lobby_id: int) -> void:
 	print_debug("Lobby ID: " + str(current_lobby_id))
 	print_debug("Host Steam ID: " + str(host_steam_id))
 
-	# The host creates the Steam multiplayer host.
 	start_steam_host()
 
 	if not multiplayer.has_multiplayer_peer():
 		print_debug("ERROR: Steam host was not created.")
 		return
 
-	# Now move from the menu into the world.
 	await transition_to_world()
 
 	if not world_loaded:
@@ -205,7 +213,6 @@ func join_lobby(lobby_id: int) -> void:
 		print_debug("ERROR: Invalid lobby ID.")
 		return
 
-	# Don't try to join our own lobby as a client.
 	if lobby_id == current_lobby_id and is_host:
 		print_debug("Already hosting this lobby.")
 		return
@@ -217,6 +224,8 @@ func join_lobby(lobby_id: int) -> void:
 
 	is_host = false
 	world_loaded = false
+
+	player_spawn_indices.clear()
 
 	Steam.joinLobby(lobby_id)
 
@@ -231,9 +240,6 @@ func _on_lobby_joined(
 	print_debug("Lobby ID: " + str(lobby_id))
 	print_debug("Response: " + str(response))
 
-	# IMPORTANT:
-	# Steam also fires lobby_joined for the person who CREATED
-	# the lobby. The host must NOT treat this as a client join.
 	if is_host:
 		print_debug(
 			"Ignoring lobby_joined because we are the host."
@@ -282,15 +288,9 @@ func _on_lobby_joined(
 			+ ")"
 		)
 
-	# --------------------------------------------------------
-	# CLIENT
-	# --------------------------------------------------------
-
 	is_host = false
 	world_loaded = false
 
-	# Load the world before establishing the multiplayer
-	# connection so the client is ready for spawn RPCs.
 	await transition_to_world()
 
 	if not world_loaded:
@@ -359,7 +359,6 @@ func start_steam_client(
 func transition_to_world() -> void:
 	var current_scene := get_tree().current_scene
 
-	# Already in the world.
 	if current_scene != null:
 		if current_scene.scene_file_path == WORLD_SCENE:
 			print_debug(
@@ -406,7 +405,6 @@ func transition_to_world() -> void:
 		+ current_scene.name
 	)
 
-	# Wait for PlayerSpawns to exist.
 	var spawn_container: Node3D = null
 
 	while spawn_container == null:
@@ -464,11 +462,9 @@ func _on_peer_connected(peer_id: int) -> void:
 		+ str(peer_id)
 	)
 
-	# Only the host handles player spawning.
 	if not is_host:
 		return
 
-	# Host is already spawned.
 	if peer_id == 1:
 		return
 
@@ -479,6 +475,47 @@ func _on_peer_connected(peer_id: int) -> void:
 
 		while not world_loaded:
 			await get_tree().process_frame
+
+	# --------------------------------------------------------
+	# SEND ALL EXISTING PLAYERS TO THE NEW PLAYER
+	# --------------------------------------------------------
+
+	print_debug(
+		"Sending existing players to peer "
+		+ str(peer_id)
+	)
+
+	for existing_peer_id in player_spawn_indices:
+		var existing_id: int = int(existing_peer_id)
+
+		if existing_id == peer_id:
+			continue
+
+		var existing_spawn_index: int = int(
+			player_spawn_indices[existing_peer_id]
+		)
+
+		var existing_name := _get_player_name(
+			existing_id
+		)
+
+		print_debug(
+			"Sending existing player "
+			+ str(existing_id)
+			+ " to peer "
+			+ str(peer_id)
+		)
+
+		spawn_player.rpc_id(
+			peer_id,
+			existing_id,
+			existing_spawn_index,
+			existing_name
+		)
+
+	# --------------------------------------------------------
+	# NOW SPAWN THE NEW PLAYER FOR EVERYONE
+	# --------------------------------------------------------
 
 	print_debug(
 		"World ready. Spawning peer "
@@ -493,6 +530,8 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		"Peer disconnected: "
 		+ str(peer_id)
 	)
+
+	player_spawn_indices.erase(peer_id)
 
 	if is_host:
 		remove_player.rpc(peer_id)
@@ -527,6 +566,8 @@ func _on_server_disconnected() -> void:
 	is_host = false
 	world_loaded = false
 
+	player_spawn_indices.clear()
+
 	get_tree().change_scene_to_file(
 		MAIN_MENU_SCENE
 	)
@@ -548,9 +589,28 @@ func add_player(peer_id: int) -> void:
 		)
 		return
 
-	var spawn_index := _get_next_spawn_index(
-		peer_id
+	# --------------------------------------------------------
+	# Assign a spawn index only once.
+	# --------------------------------------------------------
+
+	if not player_spawn_indices.has(peer_id):
+		var spawn_index := _get_next_spawn_index(peer_id)
+
+		player_spawn_indices[peer_id] = spawn_index
+
+	else:
+		print_debug(
+			"Peer "
+			+ str(peer_id)
+			+ " already has spawn index "
+			+ str(player_spawn_indices[peer_id])
+		)
+
+	var spawn_index: int = int(
+		player_spawn_indices[peer_id]
 	)
+
+	var player_name := _get_player_name(peer_id)
 
 	print_debug(
 		"========================================"
@@ -559,6 +619,11 @@ func add_player(peer_id: int) -> void:
 	print_debug(
 		"SPAWNING PLAYER: "
 		+ str(peer_id)
+	)
+
+	print_debug(
+		"Player name: "
+		+ player_name
 	)
 
 	print_debug(
@@ -580,13 +645,16 @@ func add_player(peer_id: int) -> void:
 	if peer_id == multiplayer.get_unique_id():
 		spawn_player(
 			peer_id,
-			spawn_index
+			spawn_index,
+			player_name
 		)
+
 	else:
-		# Remote players are sent to everyone.
+		# Send the new player to EVERYONE.
 		spawn_player.rpc(
 			peer_id,
-			spawn_index
+			spawn_index,
+			player_name
 		)
 
 	print_debug(
@@ -594,10 +662,48 @@ func add_player(peer_id: int) -> void:
 	)
 
 
+# ============================================================
+# GET PLAYER STEAM NAME
+# ============================================================
+
+func _get_player_name(peer_id: int) -> String:
+	if steam_peer == null:
+		return "Player"
+
+	var steam_id: int = (
+		steam_peer.get_steam64_from_peer_id(
+			peer_id
+		)
+	)
+
+	if steam_id <= 0:
+		if peer_id == 1:
+			return Steam.getPersonaName()
+
+		return "Player"
+
+	if steam_id == Steam.getSteamID():
+		return Steam.getPersonaName()
+
+	var player_name := Steam.getFriendPersonaName(
+		steam_id
+	)
+
+	if player_name.is_empty():
+		return "Player"
+
+	return player_name
+
+
+# ============================================================
+# SPAWN PLAYER RPC
+# ============================================================
+
 @rpc("authority", "call_local", "reliable")
 func spawn_player(
 	peer_id: int,
-	spawn_index: int
+	spawn_index: int,
+	player_name: String
 ) -> void:
 	print_debug(
 		"SPAWN_PLAYER called for peer "
@@ -717,10 +823,12 @@ func spawn_player(
 
 	new_player.name = str(peer_id)
 
-	# Authority before entering the scene.
 	new_player.set_multiplayer_authority(
 		peer_id
 	)
+
+	# Give the player its actual owner's Steam name.
+	new_player.player_display_name = player_name
 
 	print_debug(
 		"Adding player "
@@ -756,6 +864,11 @@ func spawn_player(
 	)
 
 	print_debug(
+		"Display name: "
+		+ player_name
+	)
+
+	print_debug(
 		"Authority: "
 		+ str(
 			new_player.get_multiplayer_authority()
@@ -787,6 +900,10 @@ func spawn_player(
 		"========================================"
 	)
 
+
+# ============================================================
+# REMOVE PLAYER
+# ============================================================
 
 @rpc("authority", "call_local", "reliable")
 func remove_player(peer_id: int) -> void:
@@ -927,6 +1044,8 @@ func leave_game() -> void:
 
 	is_host = false
 	world_loaded = false
+
+	player_spawn_indices.clear()
 
 	get_tree().change_scene_to_file(
 		MAIN_MENU_SCENE
