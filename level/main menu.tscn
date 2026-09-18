@@ -121,7 +121,7 @@ glow_normalized = true
 glow_intensity = 2.3
 glow_bloom = 0.23
 
-[node name="CanvasLayer" type="CanvasLayer" unique_id=1484944669]
+[node name="main_menu" type="CanvasLayer" unique_id=1484944669]
 script = ExtResource("6_vlynq")
 
 [node name="menu ui" type="Control" parent="." unique_id=140366587]
