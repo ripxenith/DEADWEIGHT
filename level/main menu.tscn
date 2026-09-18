@@ -134,6 +134,7 @@ grow_vertical = 2
 theme = ExtResource("5_gxowf")
 
 [node name="PanelContainer" type="PanelContainer" parent="menu ui" unique_id=1058918470]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -211,7 +212,6 @@ horizontal_alignment = 2
 vertical_alignment = 2
 
 [node name="background" type="Node3D" parent="." unique_id=1352294118 groups=["Grabbable"]]
-visible = false
 
 [node name="spaceclouds" type="Node3D" parent="background" unique_id=1514564247]
 
@@ -262,6 +262,10 @@ material = SubResource("ShaderMaterial_jrcsh")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="background" unique_id=799212322]
 environment = SubResource("Environment_bm6ue")
+
+[node name="Camera3D" type="Camera3D" parent="background" unique_id=1192396368]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -171.467, 0)
+far = 999999.0
 
 [connection signal="pressed" from="menu ui/VBoxContainer/host_game" to="." method="_on_host_game_pressed"]
 [connection signal="pressed" from="menu ui/VBoxContainer/host_game" to="menu ui" method="_on_host_game_pressed"]

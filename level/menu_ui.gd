@@ -6,7 +6,7 @@ const LOBBY_LEVEL = preload("res://level/environment/open_world.tscn")
 # UPDATE SETTINGS
 # ==============================
 
-const CURRENT_VERSION := "0.0.5"
+const CURRENT_VERSION := "0.0.6"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 var latest_version := ""
