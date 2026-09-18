@@ -7,7 +7,7 @@ const PLAYER = preload("res://assets/player/player.tscn")
 # UPDATE SETTINGS
 # ==============================
 
-const CURRENT_VERSION := "0.0.2"
+const CURRENT_VERSION := "0.0.1"
 
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
@@ -34,6 +34,7 @@ func _ready() -> void:
 	if OS.has_feature("server"):
 		Network.start_server()
 		add_world()
+		Network.add_player(1)
 		hide()
 		print_debug("ready")
 
@@ -582,10 +583,6 @@ func _process(delta: float) -> void:
 
 func on_join():
 	Network.join_server()
-
-	#var new_player = PLAYER.instantiate()
-	#get_tree().current_scene.add_child(new_player)
-
 	add_world()
 	hide()
 

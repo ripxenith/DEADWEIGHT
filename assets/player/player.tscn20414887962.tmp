@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cimr0lc2argu3" path="res://assets/player/player.gd" id="1_h6syq"]
 [ext_resource type="PackedScene" uid="uid://cyocg2jfiat57" path="res://assets/player/player_ui.tscn" id="2_h6syq"]
-[ext_resource type="PackedScene" uid="uid://d21a6trhxa61w" path="res://assets/player/playermodel.tscn" id="2_v2miy"]
+[ext_resource type="PackedScene" uid="uid://dkxpcrqyodloq" path="res://assets/player/playermodel - placeholder.glb" id="2_v2miy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_crds5"]
 radius = 0.31298828
@@ -17,20 +17,15 @@ properties/1/spawn = true
 properties/1/replication_mode = 1
 
 [node name="player" type="CharacterBody3D" unique_id=283859971 groups=["Players"]]
-input_ray_pickable = false
 script = ExtResource("1_h6syq")
 speed = 4.0
-mouse_sensitivity = 0.002
-stamina_regen_delay = 2.0
-zero_g_max_speed = 10.0
 hold_rotate_force = 45.0
 max_hold_distance = 3.5
-
-[node name="PlayerAudio" type="AudioListener3D" parent="." unique_id=1553808326]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+stamina_regen_delay = 2.0
+zero_g_max_speed = 10.0
 
 [node name="playermodel" parent="." unique_id=552066535 instance=ExtResource("2_v2miy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0.1)
 
 [node name="CameraPivot" type="Marker3D" parent="." unique_id=1806963492]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
