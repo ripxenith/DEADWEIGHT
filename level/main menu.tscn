@@ -211,6 +211,54 @@ text = "Update Status..."
 horizontal_alignment = 2
 vertical_alignment = 2
 
+[node name="SettingsMenu" type="Panel" parent="menu ui" unique_id=659264973]
+visible = false
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 80.0
+offset_top = -165.5
+offset_right = 581.0
+offset_bottom = 165.5
+grow_vertical = 2
+theme = ExtResource("5_gxowf")
+
+[node name="MarginContainer" type="MarginContainer" parent="menu ui/SettingsMenu" unique_id=398798210]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="menu ui/SettingsMenu/MarginContainer" unique_id=2114166442]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer" unique_id=1544442187]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer" unique_id=483967090]
+layout_mode = 2
+theme = ExtResource("5_gxowf")
+
+[node name="Label" type="Label" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=897725787]
+layout_mode = 2
+theme = ExtResource("5_gxowf")
+theme_override_fonts/font = ExtResource("4_gfeb6")
+text = "sensitivity"
+
+[node name="HSlider" type="HSlider" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=853572941]
+layout_mode = 2
+min_value = 0.001
+max_value = 5.0
+step = 0.001
+value = 0.001
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer" unique_id=341171195]
+layout_mode = 2
+
 [node name="background" type="Node3D" parent="." unique_id=1352294118 groups=["Grabbable"]]
 
 [node name="spaceclouds" type="Node3D" parent="background" unique_id=1514564247]

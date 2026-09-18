@@ -22,6 +22,12 @@ var is_host := false
 # 1668488921 -> 1
 var player_spawn_indices: Dictionary = {}
 
+# Stores Steam names using Steam IDs.
+# Example:
+# 76561198989705330 -> "xenith"
+# 76561199241061956 -> "Serena"
+var player_names: Dictionary = {}
+
 
 func _ready() -> void:
 	print_debug("Network initialized.")
@@ -79,6 +85,7 @@ func host_game() -> void:
 	world_loaded = false
 
 	player_spawn_indices.clear()
+	player_names.clear()
 
 	print_debug("Creating Steam friends-only lobby...")
 
@@ -105,6 +112,9 @@ func _on_lobby_created(result: int, lobby_id: int) -> void:
 
 	host_steam_id = steam_id
 
+	# Store host's name.
+	player_names[steam_id] = player_name
+
 	Steam.setLobbyData(
 		current_lobby_id,
 		"name",
@@ -126,6 +136,7 @@ func _on_lobby_created(result: int, lobby_id: int) -> void:
 	print_debug("Steam lobby ready.")
 	print_debug("Lobby ID: " + str(current_lobby_id))
 	print_debug("Host Steam ID: " + str(host_steam_id))
+	print_debug("Host name: " + player_name)
 
 	start_steam_host()
 
@@ -226,6 +237,7 @@ func join_lobby(lobby_id: int) -> void:
 	world_loaded = false
 
 	player_spawn_indices.clear()
+	player_names.clear()
 
 	Steam.joinLobby(lobby_id)
 
@@ -261,6 +273,10 @@ func _on_lobby_joined(
 		+ str(host_steam_id)
 	)
 
+	# --------------------------------------------------------
+	# Get all Steam lobby members and store their names.
+	# --------------------------------------------------------
+
 	var members := Steam.getNumLobbyMembers(
 		current_lobby_id
 	)
@@ -280,6 +296,8 @@ func _on_lobby_joined(
 			member_id
 		)
 
+		player_names[member_id] = member_name
+
 		print_debug(
 			"Lobby member: "
 			+ member_name
@@ -287,6 +305,10 @@ func _on_lobby_joined(
 			+ str(member_id)
 			+ ")"
 		)
+
+	# Also make absolutely sure our own name is available.
+	var local_steam_id: int = Steam.getSteamID()
+	player_names[local_steam_id] = Steam.getPersonaName()
 
 	is_host = false
 	world_loaded = false
@@ -477,6 +499,27 @@ func _on_peer_connected(peer_id: int) -> void:
 			await get_tree().process_frame
 
 	# --------------------------------------------------------
+	# Get the new player's Steam name.
+	# --------------------------------------------------------
+
+	var new_player_steam_id: int = _get_steam_id_from_lobby_for_peer(
+		peer_id
+	)
+
+	if new_player_steam_id > 0:
+		var new_player_name := Steam.getFriendPersonaName(
+			new_player_steam_id
+		)
+
+		if not new_player_name.is_empty():
+			player_names[new_player_steam_id] = new_player_name
+
+			print_debug(
+				"New player Steam name: "
+				+ new_player_name
+			)
+
+	# --------------------------------------------------------
 	# SEND ALL EXISTING PLAYERS TO THE NEW PLAYER
 	# --------------------------------------------------------
 
@@ -567,6 +610,7 @@ func _on_server_disconnected() -> void:
 	world_loaded = false
 
 	player_spawn_indices.clear()
+	player_names.clear()
 
 	get_tree().change_scene_to_file(
 		MAIN_MENU_SCENE
@@ -610,7 +654,9 @@ func add_player(peer_id: int) -> void:
 		player_spawn_indices[peer_id]
 	)
 
-	var player_name := _get_player_name(peer_id)
+	var player_name := _get_player_name(
+		peer_id
+	)
 
 	print_debug(
 		"========================================"
@@ -663,27 +709,37 @@ func add_player(peer_id: int) -> void:
 
 
 # ============================================================
-# GET PLAYER STEAM NAME
+# GET PLAYER NAME
 # ============================================================
 
 func _get_player_name(peer_id: int) -> String:
-	if steam_peer == null:
+	# Host is always peer 1.
+	if peer_id == 1:
+		var host_name: String = str(
+			player_names.get(
+				host_steam_id,
+				Steam.getPersonaName()
+			)
+		)
+
+		if not host_name.is_empty():
+			return host_name
+
 		return "Player"
 
-	var steam_id: int = (
-		steam_peer.get_steam64_from_peer_id(
-			peer_id
-		)
+	# --------------------------------------------------------
+	# For remote players, find their Steam ID in the lobby.
+	# --------------------------------------------------------
+
+	var steam_id := _get_steam_id_from_lobby_for_peer(
+		peer_id
 	)
 
 	if steam_id <= 0:
-		if peer_id == 1:
-			return Steam.getPersonaName()
-
 		return "Player"
 
-	if steam_id == Steam.getSteamID():
-		return Steam.getPersonaName()
+	if player_names.has(steam_id):
+		return str(player_names[steam_id])
 
 	var player_name := Steam.getFriendPersonaName(
 		steam_id
@@ -692,7 +748,106 @@ func _get_player_name(peer_id: int) -> String:
 	if player_name.is_empty():
 		return "Player"
 
+	player_names[steam_id] = player_name
+
 	return player_name
+
+
+# ============================================================
+# FIND STEAM ID FOR LOBBY MEMBER
+# ============================================================
+
+func _get_steam_id_from_lobby_for_peer(
+	peer_id: int
+) -> int:
+	# The Steam lobby itself doesn't know Godot peer IDs.
+	#
+	# For the simple 4-player setup, we match the peer to
+	# the lobby member order.
+	#
+	# The host is always peer 1.
+
+	if peer_id == 1:
+		return host_steam_id
+
+	if current_lobby_id == 0:
+		return 0
+
+	var member_count := Steam.getNumLobbyMembers(
+		current_lobby_id
+	)
+
+	# Godot's SteamMultiplayerPeer assigns peer IDs internally,
+	# so we cannot directly derive the Steam ID from the peer ID.
+	#
+	# Instead, use the lobby members and look for a member that
+	# isn't already associated with another player.
+	var used_steam_ids := {}
+
+	for existing_peer_id in player_spawn_indices:
+		var existing_id: int = int(existing_peer_id)
+
+		if existing_id == 1:
+			used_steam_ids[host_steam_id] = true
+			continue
+
+		# If we already stored a name for this peer, try to find
+		# that same Steam member.
+		var existing_name := _get_player_name_without_lookup(
+			existing_id
+		)
+
+		if not existing_name.is_empty():
+			for i in range(member_count):
+				var member_id: int = Steam.getLobbyMemberByIndex(
+					current_lobby_id,
+					i
+				)
+
+				var member_name: String = Steam.getFriendPersonaName(
+					member_id
+				)
+
+				if member_name == existing_name:
+					used_steam_ids[member_id] = true
+					break
+
+	# Find the first lobby member not already assigned.
+	for i in range(member_count):
+		var member_id: int = Steam.getLobbyMemberByIndex(
+			current_lobby_id,
+			i
+		)
+
+		if used_steam_ids.has(member_id):
+			continue
+
+		if member_id == Steam.getSteamID():
+			continue
+
+		return member_id
+
+	return 0
+
+
+func _get_player_name_without_lookup(
+	peer_id: int
+) -> String:
+	if peer_id == 1:
+		return player_names.get(
+			host_steam_id,
+			""
+		)
+
+	for steam_id in player_names:
+		var stored_name: String = str(
+			player_names[steam_id]
+		)
+
+		if not stored_name.is_empty():
+			return stored_name
+
+	return ""
 
 
 # ============================================================
@@ -1016,6 +1171,8 @@ func print_lobby_members() -> void:
 			member_id
 		)
 
+		player_names[member_id] = member_name
+
 		print_debug(
 			"Lobby member: "
 			+ member_name
@@ -1046,6 +1203,7 @@ func leave_game() -> void:
 	world_loaded = false
 
 	player_spawn_indices.clear()
+	player_names.clear()
 
 	get_tree().change_scene_to_file(
 		MAIN_MENU_SCENE
