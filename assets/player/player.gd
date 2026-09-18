@@ -146,7 +146,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	add_to_group("Players")
 
-	player_id_label.text = name
+	player_id_label.text = Steam.getPersonaName()
 
 	# Camera setup
 	camera_pivot.top_level = false

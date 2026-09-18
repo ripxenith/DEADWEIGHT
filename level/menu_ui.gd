@@ -1,14 +1,12 @@
 extends CanvasLayer
 
 const LOBBY_LEVEL = preload("res://level/environment/open_world.tscn")
-const PLAYER = preload("res://assets/player/player.tscn")
 
 # ==============================
 # UPDATE SETTINGS
 # ==============================
 
-const CURRENT_VERSION := "0.0.1"
-
+const CURRENT_VERSION := "0.0.5"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 var latest_version := ""
@@ -20,25 +18,14 @@ var downloading_update := false
 @onready var update_button: Button = $"menu ui/UpdateButton"
 @onready var update_status: Label = $"menu ui/UpdateStatus"
 
-
 # ==============================
 # READY
 # ==============================
 
 func _ready() -> void:
-	# Connect update button
 	if not update_button.pressed.is_connected(_on_update_button_pressed):
 		update_button.pressed.connect(_on_update_button_pressed)
 
-	# Server setup
-	if OS.has_feature("server"):
-		Network.start_server()
-		add_world()
-		Network.add_player(1)
-		hide()
-		print_debug("ready")
-
-	# Update system
 	_setup_update_system()
 
 
@@ -577,36 +564,48 @@ func powershell_escape(value: String) -> String:
 # GAME FUNCTIONS
 # ==============================
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 
-func on_join():
-	Network.join_server()
-	add_world()
-	hide()
-
-
-func add_world():
+func add_world() -> void:
 	var new_world = LOBBY_LEVEL.instantiate()
 	get_tree().current_scene.add_child(new_world)
 
 
-func exit_game():
+func exit_game() -> void:
 	get_tree().quit()
 
 
+# ==============================
+# HOST GAME
+# ==============================
+
 func _on_host_game_pressed() -> void:
+	print_debug("Host Game pressed.")
+	Network.host_game()
+	hide()
+
+
+# ==============================
+# JOIN GAME
+# ==============================
+
+func _on_join_game_pressed() -> void:
+	print_debug("Join Game is handled through Steam invites.")
+
+
+# ==============================
+# SETTINGS
+# ==============================
+
+func _on_settings_pressed() -> void:
 	pass
 
 
-func _on_join_game_pressed() -> void:
-	on_join()
-
-
-func _on_settings_pressed() -> void:
-	pass # Replace with function body.
-
+# ==============================
+# EXIT
+# ==============================
 
 func _on_exit_pressed() -> void:
 	exit_game()
