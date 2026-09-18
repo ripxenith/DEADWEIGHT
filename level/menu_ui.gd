@@ -11,15 +11,15 @@ const CURRENT_VERSION := "0.0.1"
 
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
-const UPDATER_NAME := "DEADWEIGHTUpdater.exe"
-
 var latest_version := ""
 var download_url := ""
 var update_available := false
 var checking_for_update := false
+var downloading_update := false
 
 @onready var update_button: Button = $"menu ui/UpdateButton"
 @onready var update_status: Label = $"menu ui/UpdateStatus"
+
 
 # ==============================
 # READY
@@ -66,7 +66,10 @@ func check_for_update() -> void:
 	var error := http.request(VERSION_URL)
 
 	if error != OK:
-		print_debug("Failed to start update check: " + error_string(error))
+		print_debug(
+			"Failed to start update check: "
+			+ error_string(error)
+		)
 
 		checking_for_update = false
 
@@ -91,7 +94,10 @@ func _on_version_request_completed(
 
 	# HTTP request failed
 	if result != HTTPRequest.RESULT_SUCCESS:
-		print_debug("Update check failed. Result: " + str(result))
+		print_debug(
+			"Update check failed. Result: "
+			+ str(result)
+		)
 
 		update_button.text = "RETRY"
 		update_button.disabled = false
@@ -101,7 +107,10 @@ func _on_version_request_completed(
 
 	# Server returned something other than 200 OK
 	if response_code != 200:
-		print_debug("Update server returned HTTP " + str(response_code))
+		print_debug(
+			"Update server returned HTTP "
+			+ str(response_code)
+		)
 
 		update_button.text = "RETRY"
 		update_button.disabled = false
@@ -160,7 +169,8 @@ func _on_version_request_completed(
 		update_button.disabled = false
 
 		update_status.text = (
-			"Update available: v" + latest_version
+			"Update available: v"
+			+ latest_version
 		)
 
 		print_debug(
@@ -179,7 +189,8 @@ func _on_version_request_completed(
 		update_button.disabled = true
 
 		update_status.text = (
-			"Version " + CURRENT_VERSION
+			"Version "
+			+ CURRENT_VERSION
 		)
 
 		print_debug(
@@ -228,54 +239,310 @@ func _on_update_button_pressed() -> void:
 	if not update_available:
 		return
 
+	if downloading_update:
+		return
+
 	update_button.disabled = true
-	update_button.text = "UPDATING..."
+	update_button.text = "DOWNLOADING..."
 
-	update_status.text = "Starting updater..."
-
-	start_update()
-
-
-func start_update() -> void:
-	var game_executable := OS.get_executable_path()
-
-	var updater_path := game_executable.get_base_dir().path_join(
-		UPDATER_NAME
+	update_status.text = (
+		"Downloading v"
+		+ latest_version
+		+ "..."
 	)
 
-	# Make sure updater exists
-	if not FileAccess.file_exists(updater_path):
+	download_update()
+
+
+# ==============================
+# DOWNLOAD UPDATE
+# ==============================
+
+func download_update() -> void:
+	downloading_update = true
+
+	var update_zip_path := OS.get_user_data_dir().path_join(
+		"DEADWEIGHT_update.zip"
+	)
+
+	# Delete an old update ZIP if one exists.
+	if FileAccess.file_exists(update_zip_path):
+		DirAccess.remove_absolute(update_zip_path)
+
+	var http := HTTPRequest.new()
+	add_child(http)
+
+	http.download_file = update_zip_path
+
+	http.request_completed.connect(
+		_on_update_download_completed.bind(
+			http,
+			update_zip_path
+		)
+	)
+
+	var error := http.request(download_url)
+
+	if error != OK:
 		print_debug(
-			"Updater not found: "
-			+ updater_path
+			"Failed to start update download: "
+			+ error_string(error)
 		)
 
-		update_button.text = "UPDATE ERROR"
+		downloading_update = false
+
+		http.queue_free()
+
+		update_button.text = "UPDATE"
 		update_button.disabled = false
 
-		update_status.text = (
-			"Updater not found."
+		update_status.text = "Download failed."
+
+
+# ==============================
+# DOWNLOAD FINISHED
+# ==============================
+
+func _on_update_download_completed(
+	result: int,
+	response_code: int,
+	headers: PackedStringArray,
+	body: PackedByteArray,
+	http: HTTPRequest,
+	update_zip_path: String
+) -> void:
+
+	http.queue_free()
+
+	if result != HTTPRequest.RESULT_SUCCESS:
+		print_debug(
+			"Update download failed. Result: "
+			+ str(result)
 		)
+
+		downloading_update = false
+
+		update_button.text = "UPDATE"
+		update_button.disabled = false
+
+		update_status.text = "Download failed."
 
 		return
 
-	# Arguments passed to XenthosUpdater.exe
-	var arguments := [
-		game_executable,
-		download_url
-	]
+	if response_code != 200:
+		print_debug(
+			"Update download returned HTTP "
+			+ str(response_code)
+		)
 
-	print_debug("Starting updater...")
-	print_debug("Game: " + game_executable)
-	print_debug("Download: " + download_url)
+		downloading_update = false
 
-	OS.create_process(
-		updater_path,
-		arguments
+		update_button.text = "UPDATE"
+		update_button.disabled = false
+
+		update_status.text = "Download failed."
+
+		return
+
+	print_debug(
+		"Update downloaded successfully:"
+		+ update_zip_path
 	)
 
-	# Close the game so the updater can replace its files.
+	update_status.text = "Installing update..."
+
+	create_update_script(update_zip_path)
+
+
+# ==============================
+# CREATE POWERSHELL UPDATER
+# ==============================
+
+func create_update_script(update_zip_path: String) -> void:
+	var game_executable := OS.get_executable_path()
+	var game_directory := game_executable.get_base_dir()
+
+	var game_pid := OS.get_process_id()
+
+	var script_path := OS.get_user_data_dir().path_join(
+		"DEADWEIGHT_update.ps1"
+	)
+
+	var extract_directory := OS.get_user_data_dir().path_join(
+		"DEADWEIGHT_update_extracted"
+	)
+
+	# Escape paths for PowerShell single-quoted strings.
+	var escaped_game_executable := powershell_escape(game_executable)
+	var escaped_game_directory := powershell_escape(game_directory)
+	var escaped_zip_path := powershell_escape(update_zip_path)
+	var escaped_extract_directory := powershell_escape(extract_directory)
+	var escaped_script_path := powershell_escape(script_path)
+
+	var script := """
+$ErrorActionPreference = "Stop"
+
+$GamePID = %d
+$GameExecutable = '%s'
+$GameDirectory = '%s'
+$ZipPath = '%s'
+$ExtractDirectory = '%s'
+$ScriptPath = '%s'
+
+Write-Host "DEADWEIGHT updater started."
+
+# Wait for DEADWEIGHT to close.
+try {
+    Wait-Process -Id $GamePID -Timeout 60
+}
+catch {
+    Write-Host "Game process already closed."
+}
+
+Start-Sleep -Seconds 1
+
+Write-Host "Preparing update..."
+
+# Remove old extraction directory.
+if (Test-Path $ExtractDirectory) {
+    Remove-Item $ExtractDirectory -Recurse -Force
+}
+
+New-Item -ItemType Directory -Path $ExtractDirectory -Force | Out-Null
+
+Write-Host "Extracting update..."
+
+Expand-Archive -Path $ZipPath -DestinationPath $ExtractDirectory -Force
+
+Write-Host "Installing files..."
+
+# Find the actual exported game files.
+$FilesToCopy = Get-ChildItem -Path $ExtractDirectory -Force
+
+# If the ZIP contains a single DEADWEIGHT folder,
+# use that folder as the source instead.
+if ($FilesToCopy.Count -eq 1 -and $FilesToCopy[0].PSIsContainer) {
+    $SourceDirectory = $FilesToCopy[0].FullName
+}
+else {
+    $SourceDirectory = $ExtractDirectory
+}
+
+# Copy the new game files into the existing game directory.
+Copy-Item `
+    -Path (Join-Path $SourceDirectory "*") `
+    -Destination $GameDirectory `
+    -Recurse `
+    -Force
+
+Write-Host "Cleaning up..."
+
+if (Test-Path $ExtractDirectory) {
+    Remove-Item $ExtractDirectory -Recurse -Force
+}
+
+if (Test-Path $ZipPath) {
+    Remove-Item $ZipPath -Force
+}
+
+Write-Host "Starting DEADWEIGHT..."
+
+Start-Process -FilePath $GameExecutable
+
+# Delete this PowerShell script.
+Start-Sleep -Seconds 2
+
+Remove-Item $ScriptPath -Force
+""" % [
+		game_pid,
+		escaped_game_executable,
+		escaped_game_directory,
+		escaped_zip_path,
+		escaped_extract_directory,
+		escaped_script_path
+	]
+
+	var file := FileAccess.open(
+		script_path,
+		FileAccess.WRITE
+	)
+
+	if file == null:
+		print_debug("Could not create update script.")
+
+		downloading_update = false
+
+		update_button.text = "UPDATE"
+		update_button.disabled = false
+		update_status.text = "Could not start updater."
+
+		return
+
+	file.store_string(script)
+	file.close()
+
+	print_debug(
+		"Created PowerShell updater: "
+		+ script_path
+	)
+
+	start_powershell_updater(
+		script_path
+	)
+
+
+# ==============================
+# START POWERSHELL
+# ==============================
+
+func start_powershell_updater(script_path: String) -> void:
+	var powershell_path := "powershell.exe"
+
+	var arguments := [
+		"-NoProfile",
+		"-ExecutionPolicy",
+		"Bypass",
+		"-File",
+		script_path
+	]
+
+	print_debug("Starting PowerShell updater.")
+
+	var pid := OS.create_process(
+		powershell_path,
+		arguments,
+		false
+	)
+
+	if pid == -1:
+		print_debug("Failed to start PowerShell updater.")
+
+		downloading_update = false
+
+		update_button.text = "UPDATE"
+		update_button.disabled = false
+		update_status.text = "Could not start updater."
+
+		return
+
+	print_debug(
+		"PowerShell updater started with PID: "
+		+ str(pid)
+	)
+
+	# The PowerShell script will take over from here.
 	get_tree().quit()
+
+
+# ==============================
+# POWERSHELL STRING ESCAPING
+# ==============================
+
+func powershell_escape(value: String) -> String:
+	return value.replace(
+		"'",
+		"''"
+	)
 
 
 # ==============================
