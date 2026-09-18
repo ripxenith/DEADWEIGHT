@@ -16,6 +16,7 @@ var player_spawn_indices: Dictionary = {}
 
 
 func _ready() -> void:
+	
 	# Steam lobby signals.
 	if not Steam.lobby_created.is_connected(_on_lobby_created):
 		Steam.lobby_created.connect(_on_lobby_created)
@@ -27,11 +28,12 @@ func _ready() -> void:
 		Steam.lobby_chat_update.connect(_on_lobby_chat_update)
 
 	# Fired when somebody accepts a Steam lobby invite.
-	if not Steam.is_connected("game_lobby_join_requested", _on_game_lobby_join_requested):
-		Steam.connect("game_lobby_join_requested", _on_game_lobby_join_requested)
+	if not Steam.is_connected("join_requested", _on_join_requested):
+		Steam.connect("join_requested", _on_join_requested)
 
 	# Allows Steam to launch the game directly into an invited lobby.
 	_check_command_line_lobby()
+
 
 
 # ============================================================
@@ -144,14 +146,23 @@ func open_invite_dialog() -> void:
 	Steam.activateGameOverlayInviteDialog(lobby_id)
 
 
-func _on_game_lobby_join_requested(
+func _on_join_requested(
 	requested_lobby_id: int,
-	_friend_id: int
+	steam_id: int
 ) -> void:
 
 	print_debug(
-		"Steam lobby invite accepted: "
+		"Steam invite accepted!"
+	)
+
+	print_debug(
+		"Lobby: "
 		+ str(requested_lobby_id)
+	)
+
+	print_debug(
+		"Invited by: "
+		+ str(steam_id)
 	)
 
 	join_lobby(requested_lobby_id)
