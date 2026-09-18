@@ -93,12 +93,16 @@ var controlled_ship: Node3D = null
 
 var player_display_name: String = "Player"
 
+# Pause menu
+var pause_menu_open := false
+
 
 # ============================================================
 # UI
 # ============================================================
 
 @onready var player_ui: CanvasLayer = $PlayerUI
+@onready var pause_menu: MarginContainer = $PlayerUI/UIContainer/PauseMenu
 @onready var grab_ui = $PlayerUI/GrabUI
 
 @onready var player_id_label = $player_id_label
@@ -175,6 +179,13 @@ func _ready() -> void:
 	thruster_bar.visible = false
 
 	# --------------------------------------------------------
+	# PAUSE MENU
+	# --------------------------------------------------------
+
+	pause_menu.hide()
+	pause_menu_open = false
+
+	# --------------------------------------------------------
 	# LOCAL PLAYER
 	# --------------------------------------------------------
 
@@ -214,9 +225,95 @@ func _input(event: InputEvent) -> void:
 	if controlling_ship:
 		return
 
+	# Escape always toggles the pause menu.
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			toggle_pause_menu()
+			get_viewport().set_input_as_handled()
+			return
+
+	# Completely stop player input while pause menu is open.
+	if pause_menu != null and pause_menu.visible:
+		return
+
 	handle_mouse_motion(event)
 	handle_mouse_buttons(event)
-	handle_keyboard_input(event)
+
+
+# ============================================================
+# PAUSE MENU
+# ============================================================
+
+func toggle_pause_menu() -> void:
+	if pause_menu == null:
+		return
+
+	if pause_menu.visible:
+		pause_menu.hide()
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		get_viewport().gui_release_focus()
+	else:
+		pause_menu.show()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func open_pause_menu() -> void:
+	if pause_menu_open:
+		return
+
+	pause_menu_open = true
+
+	pause_menu.show()
+
+	# Release the mouse so the UI can receive it.
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+	# Give the menu keyboard/controller focus.
+	_focus_pause_menu()
+
+
+func close_pause_menu() -> void:
+	if not pause_menu_open:
+		return
+
+	pause_menu_open = false
+
+	pause_menu.hide()
+
+	# Capture the mouse again for FPS camera control.
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+func _focus_pause_menu() -> void:
+	# Find the first focusable Control inside the pause menu.
+	var first_focusable: Control = _find_first_focusable_control(
+		pause_menu
+	)
+
+	if first_focusable != null:
+		first_focusable.grab_focus()
+
+
+func _find_first_focusable_control(
+	node: Node
+) -> Control:
+	for child in node.get_children():
+		if child is Control:
+			var control := child as Control
+
+			if (
+				control.focus_mode
+				!= Control.FOCUS_NONE
+				and control.visible
+				and not control.disabled
+			):
+				return control
+
+		var result := _find_first_focusable_control(child)
+
+		if result != null:
+			return result
+
+	return null
 
 
 # ============================================================
@@ -225,6 +322,10 @@ func _input(event: InputEvent) -> void:
 
 func handle_mouse_motion(event: InputEvent) -> void:
 	if not event is InputEventMouseMotion:
+		return
+
+	# Never move the camera while the pause menu is open.
+	if pause_menu_open:
 		return
 
 	# --------------------------------------------------------
@@ -360,14 +461,6 @@ func handle_keyboard_input(event: InputEvent) -> void:
 	if not event.pressed:
 		return
 
-	if event.keycode != KEY_ESCAPE:
-		return
-
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	else:
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
 
 # ============================================================
 # PHYSICS
@@ -381,6 +474,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if controlling_ship:
+		return
+
+	# Don't move the player while paused.
+	if pause_menu_open:
 		return
 
 	update_crouch(delta)
@@ -736,6 +833,10 @@ func _process(_delta: float) -> void:
 	update_debug_info()
 	update_object_info()
 	update_grab_ui()
+
+	# Don't process gameplay interactions while paused.
+	if pause_menu_open:
+		return
 
 	# Throw first so throwing takes priority over interaction.
 	handle_throw()

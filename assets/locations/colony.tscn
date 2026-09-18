@@ -4082,7 +4082,7 @@ face_vertex_data = {
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bkdwl"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t4ism"]
-size = Vector3(32, 40, 8)
+size = Vector3(31.300001, 39.2, 7.7000003)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bkdwl"]
 size = Vector3(5.5, 5.6, 5)
@@ -4287,6 +4287,14 @@ mesh_vector_data = SubResource("Resource_xjoea")
 [node name="Airlock4" parent="Cyclops/Room3" unique_id=1372585402 instance=ExtResource("1_hgva7")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 8, 0, 0.99999905)
 
+[node name="InteractableButton7" parent="Cyclops/Room3" unique_id=1715095479 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 9.399998, 1.1, 1.000001)
+target = NodePath("../Airlock4")
+
+[node name="InteractableButton8" parent="Cyclops/Room3" unique_id=1102628999 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 9.399998, 1.1, 9.536743e-07)
+target = NodePath("../Airlock4")
+
 [node name="Room4" type="Node3D" parent="Cyclops" unique_id=2074991180]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
 
@@ -4341,6 +4349,14 @@ mesh_vector_data = SubResource("Resource_vgfix")
 
 [node name="Airlock5" parent="Cyclops/Room4" unique_id=1884157831 instance=ExtResource("1_hgva7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
+
+[node name="InteractableButton5" parent="Cyclops/Room4" unique_id=443674306 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.6000004, 1.1, 0)
+target = NodePath("../Airlock5")
+
+[node name="InteractableButton6" parent="Cyclops/Room4" unique_id=637403695 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.6000004, 1.1, 1)
+target = NodePath("../Airlock5")
 
 [node name="Block_1" type="Node3D" parent="Cyclops" unique_id=317087130]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -8)
@@ -4468,7 +4484,7 @@ mesh_vector_data = SubResource("Resource_vohnx")
 materials = Array[Material]([SubResource("StandardMaterial3D_bkdwl")])
 collision_type = 2
 
-[node name="InteractableButton3" parent="." unique_id=1715095479 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
+[node name="InteractableButton3" parent="." unique_id=699835322 node_paths=PackedStringArray("target") instance=ExtResource("8_j0tdx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.9, 1.7, -1)
 target = NodePath("../Airlock2")
 
@@ -4487,7 +4503,7 @@ transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -9, -5.0000076, -5.200001)
 script = ExtResource("6_erlc2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ShipGravity" unique_id=1955902217]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.102043, 1.1866455, -8.029968)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.152042, 1.1866474, -7.8799686)
 shape = SubResource("BoxShape3D_t4ism")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=1088219371]

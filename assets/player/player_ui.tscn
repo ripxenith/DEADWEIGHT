@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://drb14vh0ecwtx" path="res://assets/ui/grabv2.png" id="2_ndm4a"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_yjs2o"]
 [ext_resource type="Texture2D" uid="uid://8qmiqbkbbvtw" path="res://assets/ui/crosshair.png" id="4_n7ygu"]
+[ext_resource type="Script" uid="uid://q3y50d1vc6e1" path="res://assets/player/pause_menu.gd" id="6_75r6w"]
 
 [node name="PlayerUI" type="CanvasLayer" unique_id=1894593199]
 script = ExtResource("1_ndm4a")
@@ -60,42 +61,59 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Pause Menu" type="MarginContainer" parent="UIContainer" unique_id=2094654188]
-visible = false
+[node name="PauseMenu" type="MarginContainer" parent="UIContainer" unique_id=2094654188]
 layout_mode = 2
+mouse_filter = 0
 theme = ExtResource("1_dtcvl")
+script = ExtResource("6_75r6w")
 
-[node name="PanelContainer" type="PanelContainer" parent="UIContainer/Pause Menu" unique_id=1919551535]
+[node name="PanelContainer" type="PanelContainer" parent="UIContainer/PauseMenu" unique_id=1919551535]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/Pause Menu/PanelContainer" unique_id=1700845513]
+[node name="MarginContainer" type="MarginContainer" parent="UIContainer/PauseMenu/PanelContainer" unique_id=1080955964]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer" unique_id=1700845513]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Label" type="Label" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2" unique_id=920446811]
+[node name="PauseLabel" type="Label" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2" unique_id=920446811]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_yjs2o")
 text = "pause menu"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2" unique_id=622350805]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2" unique_id=622350805]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Button2" type="Button" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2/VBoxContainer" unique_id=411222150]
+[node name="ResumeBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=67314790]
+layout_mode = 2
+text = "RESUME"
+
+[node name="SettingsBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=411222150]
 layout_mode = 2
 text = "settings"
 
-[node name="Button" type="Button" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2/VBoxContainer" unique_id=215111693]
+[node name="QuitToMenuBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=658325764]
 layout_mode = 2
-text = "exit"
+text = "quit to menu"
+
+[node name="QuitGameBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=215111693]
+layout_mode = 2
+text = "quit game"
 
 [node name="CenterUI" type="Control" parent="UIContainer" unique_id=25988265]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="Crosshair" type="TextureRect" parent="UIContainer/CenterUI" unique_id=1984595537]
 layout_mode = 1
@@ -104,12 +122,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -8.555542
-offset_top = -4.8125
-offset_right = 8.555542
-offset_bottom = 4.8125
+offset_left = -7.5451355
+offset_top = -4.2382813
+offset_right = 7.5451355
+offset_bottom = 4.2382813
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("4_n7ygu")
 expand_mode = 1
 
@@ -147,7 +166,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="InteractPrompt" type="Label" parent="UIContainer/CenterUI" unique_id=934564441]
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -160,6 +178,7 @@ offset_right = 42.0
 offset_bottom = 43.5
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_yjs2o")
 theme_override_font_sizes/font_size = 8
 text = "[F] Interact"
@@ -168,6 +187,7 @@ vertical_alignment = 1
 
 [node name="CornerUI" type="Control" parent="UIContainer" unique_id=637000383]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/CornerUI" unique_id=1421295291]
 layout_mode = 1
@@ -199,3 +219,8 @@ text = "THRUSTERS"
 [node name="ThrusterBar" type="ProgressBar" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1590163773]
 layout_mode = 2
 rounded = true
+
+[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/ResumeBtn" to="UIContainer/PauseMenu" method="_on_resume_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/SettingsBtn" to="UIContainer/PauseMenu" method="_on_settings_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/QuitToMenuBtn" to="UIContainer/PauseMenu" method="_on_quit_to_menu_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/QuitGameBtn" to="UIContainer/PauseMenu" method="_on_quit_game_btn_pressed"]

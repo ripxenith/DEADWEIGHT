@@ -125,13 +125,13 @@ shader_parameter/noise_texture = SubResource("NoiseTexture2D_7u2yt")
 [node name="OpenWorld" type="Node3D" unique_id=2032529273]
 
 [node name="crate" parent="." unique_id=1968973843 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.9, 0, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.9, -0.2, -33)
 
 [node name="crate2" parent="." unique_id=628074455 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 0, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, -0.2, -33)
 
 [node name="crate3" parent="." unique_id=211313740 instance=ExtResource("1_bb2yp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.4, 1.2, -33)
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 40.4, 0.90000004, -33)
 
 [node name="Background" type="Node3D" parent="." unique_id=887714701]
 
@@ -203,16 +203,16 @@ directional_shadow_pancake_size = 10.0
 [node name="PlayerSpawns" type="Node3D" parent="." unique_id=1804665080]
 
 [node name="Spawn" type="Marker3D" parent="PlayerSpawns" unique_id=1373310591]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -42)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 37, 0, -43)
 
 [node name="Spawn2" type="Marker3D" parent="PlayerSpawns" unique_id=1891635308]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37, 0, -18)
 
 [node name="Spawn3" type="Marker3D" parent="PlayerSpawns" unique_id=970158365]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.100002, 0, -18)
 
 [node name="Spawn4" type="Marker3D" parent="PlayerSpawns" unique_id=403600688]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -38)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 53, 0, -42)
 
 [node name="ship" parent="." unique_id=41042865 instance=ExtResource("2_u4deq")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6, 0, -44)
