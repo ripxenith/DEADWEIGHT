@@ -7,7 +7,7 @@ const PLAYER = preload("res://assets/player/player.tscn")
 # UPDATE SETTINGS
 # ==============================
 
-const CURRENT_VERSION := "0.0.1"
+const CURRENT_VERSION := "0.0.2"
 
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
