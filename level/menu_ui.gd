@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const CURRENT_VERSION := "0.1.0"
+const CURRENT_VERSION := "0.0.9"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 
@@ -17,6 +17,10 @@ var http_request: HTTPRequest
 
 func _ready() -> void:
 	print_debug("Main menu loaded.")
+
+	# Make sure the update button is connected.
+	if not update_button.pressed.is_connected(_on_update_pressed):
+		update_button.pressed.connect(_on_update_pressed)
 
 	# Hide the update button until we know an update exists.
 	update_button.hide()
@@ -289,7 +293,10 @@ func _show_game_up_to_date() -> void:
 # ============================================================
 
 func download_update() -> void:
+	print_debug("UPDATE BUTTON PRESSED")
+
 	if not update_available:
+		print_debug("Update button pressed, but no update is available.")
 		return
 
 	if update_url.is_empty():
@@ -301,9 +308,12 @@ func download_update() -> void:
 		+ latest_version
 	)
 
-	var updater_script := OS.get_user_data_dir() + "/update.ps1"
+	var updater_script: String = (
+		OS.get_user_data_dir()
+		+ "/update.ps1"
+	)
 
-	var game_executable := OS.get_executable_path()
+	var game_executable: String = OS.get_executable_path()
 
 	var script := """
 $ErrorActionPreference = "Stop"
@@ -346,7 +356,12 @@ exit
 	file.store_string(script)
 	file.close()
 
-	OS.create_process(
+	print_debug(
+		"Updater script created at: "
+		+ updater_script
+	)
+
+	var process_id: int = OS.create_process(
 		"powershell.exe",
 		[
 			"-NoProfile",
@@ -357,6 +372,17 @@ exit
 		]
 	)
 
+	print_debug(
+		"Updater process ID: "
+		+ str(process_id)
+	)
+
+	if process_id == -1:
+		print_debug("ERROR: Failed to start PowerShell updater.")
+		return
+
+	print_debug("Closing game for update.")
+
 	get_tree().quit()
 
 
@@ -365,4 +391,6 @@ exit
 # ============================================================
 
 func _on_update_pressed() -> void:
+	print_debug("Update button pressed!")
+
 	download_update()
