@@ -1230,3 +1230,15 @@ func _close_existing_peer() -> void:
 		multiplayer.multiplayer_peer = null
 
 	steam_peer = null
+
+func spawn_all_sellable_items() -> void:
+	if not is_host:
+		return
+
+	var spawnpoints: Array[Node] = get_tree().get_nodes_in_group(
+		"SellableSpawnpoints"
+	)
+
+	for spawnpoint in spawnpoints:
+		if spawnpoint is Sellable_Spawnpoint:
+			spawnpoint.spawn_item()	

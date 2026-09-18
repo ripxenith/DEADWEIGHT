@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const CURRENT_VERSION := "0.0.8"
+const CURRENT_VERSION := "0.0.9"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 
@@ -11,9 +11,21 @@ var update_available := false
 
 var http_request: HTTPRequest
 
+@onready var update_button: Button = $"menu ui/UpdateButton"
+@onready var update_label: Label = $"menu ui/UpdateStatus"
+
 
 func _ready() -> void:
 	print_debug("Main menu loaded.")
+
+	# Hide the update button until we know an update exists.
+	update_button.hide()
+
+	update_label.text = (
+		"DEADWEIGHT v"
+		+ CURRENT_VERSION
+		+ "\nChecking for updates..."
+	)
 
 	_setup_update_checker()
 
@@ -25,11 +37,6 @@ func _ready() -> void:
 func _on_host_game_pressed() -> void:
 	print_debug("Host Game pressed.")
 
-	# Network handles:
-	# Steam lobby creation
-	# Steam host creation
-	# Scene transition
-	# Player spawning
 	Network.host_game()
 
 
@@ -71,14 +78,28 @@ func check_for_updates() -> void:
 	if http_request == null:
 		return
 
+	update_button.hide()
+
+	update_label.text = (
+		"DEADWEIGHT v"
+		+ CURRENT_VERSION
+		+ "\nChecking for updates..."
+	)
+
 	print_debug("Checking for updates...")
 
-	var error := http_request.request(VERSION_URL)
+	var error: Error = http_request.request(VERSION_URL)
 
 	if error != OK:
 		print_debug(
 			"Failed to check for updates. Error: "
 			+ str(error)
+		)
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nUnable to check for updates."
 		)
 
 
@@ -88,8 +109,18 @@ func _on_version_request_completed(
 	headers: PackedStringArray,
 	body: PackedByteArray
 ) -> void:
+
 	if result != HTTPRequest.RESULT_SUCCESS:
 		print_debug("Update check failed.")
+
+		update_button.hide()
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nUnable to check for updates."
+		)
+
 		return
 
 	if response_code != 200:
@@ -97,32 +128,70 @@ func _on_version_request_completed(
 			"Update server returned HTTP "
 			+ str(response_code)
 		)
+
+		update_button.hide()
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nUnable to check for updates."
+		)
+
 		return
 
-	var text := body.get_string_from_utf8()
+	var text: String = body.get_string_from_utf8()
 
 	var json := JSON.new()
 
-	var parse_result := json.parse(text)
+	var parse_result: Error = json.parse(text)
 
 	if parse_result != OK:
 		print_debug("Failed to parse version.json.")
+
+		update_button.hide()
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nInvalid update information."
+		)
+
 		return
 
-	var data = json.data
+	var data: Variant = json.data
 
 	if typeof(data) != TYPE_DICTIONARY:
 		print_debug("Invalid version.json format.")
+
+		update_button.hide()
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nInvalid update information."
+		)
+
 		return
 
-	if not data.has("version"):
+	var version_data: Dictionary = data
+
+	if not version_data.has("version"):
 		print_debug("version.json has no version field.")
+
+		update_button.hide()
+
+		update_label.text = (
+			"DEADWEIGHT v"
+			+ CURRENT_VERSION
+			+ "\nInvalid update information."
+		)
+
 		return
 
-	latest_version = str(data["version"])
+	latest_version = str(version_data["version"])
 
-	if data.has("url"):
-		update_url = str(data["url"])
+	if version_data.has("url"):
+		update_url = str(version_data["url"])
 
 	print_debug(
 		"Current version: "
@@ -140,18 +209,26 @@ func _on_version_request_completed(
 		print_debug("A new version is available.")
 
 		_show_update_available()
+
 	else:
 		update_available = false
 
 		print_debug("Game is up to date.")
 
+		_show_game_up_to_date()
+
+
+# ============================================================
+# VERSION COMPARISON
+# ============================================================
 
 func _is_newer_version(
 	new_version: String,
 	old_version: String
 ) -> bool:
-	var new_parts := new_version.split(".")
-	var old_parts := old_version.split(".")
+
+	var new_parts: PackedStringArray = new_version.split(".")
+	var old_parts: PackedStringArray = old_version.split(".")
 
 	var count: int = maxi(
 		new_parts.size(),
@@ -159,8 +236,8 @@ func _is_newer_version(
 	)
 
 	for i in range(count):
-		var new_number := 0
-		var old_number := 0
+		var new_number: int = 0
+		var old_number: int = 0
 
 		if i < new_parts.size():
 			new_number = int(new_parts[i])
@@ -177,12 +254,33 @@ func _is_newer_version(
 	return false
 
 
+# ============================================================
+# UPDATE LABEL
+# ============================================================
+
 func _show_update_available() -> void:
-	# Keep this function available for the existing UI.
-	# If your menu has an update panel/button, enable it here.
+	update_button.show()
+
+	update_label.text = (
+		"DEADWEIGHT v"
+		+ CURRENT_VERSION
+		+ "\nUpdate available: v"
+		+ latest_version
+	)
+
 	print_debug(
 		"Update available: "
 		+ latest_version
+	)
+
+
+func _show_game_up_to_date() -> void:
+	update_button.hide()
+
+	update_label.text = (
+		"DEADWEIGHT v"
+		+ CURRENT_VERSION
+		+ "\nUp to date"
 	)
 
 
@@ -263,7 +361,7 @@ exit
 
 
 # ============================================================
-# OPTIONAL UPDATE BUTTON
+# UPDATE BUTTON
 # ============================================================
 
 func _on_update_pressed() -> void:

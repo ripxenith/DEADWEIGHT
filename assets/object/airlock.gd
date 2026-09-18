@@ -1,9 +1,9 @@
 class_name Airlock
 extends Activatable
 
-@export var door1_distance := 2.0
-@export var door2_distance := 2.0
-@export var move_speed := 5.0
+@export var door1_distance := 1.75
+@export var door2_distance := 1.75
+@export var move_speed := 3.5
 
 @onready var door1: Node3D = $Cyclops/Door1
 @onready var door2: Node3D = $Cyclops/Door2

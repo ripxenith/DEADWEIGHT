@@ -64,6 +64,8 @@ var zero_gravity := false
 @export var max_hold_distance := 4.5
 @export var hold_scroll_amount := 0.5
 
+@export var player_strength := 100.0
+
 var held_object: RigidBody3D = null
 var held_ui_local_position := Vector3.ZERO
 var target_angular_velocity := Vector3.ZERO
@@ -238,6 +240,16 @@ func _input(event: InputEvent) -> void:
 
 	handle_mouse_motion(event)
 	handle_mouse_buttons(event)
+	
+	var fullscreen = false
+	if Input.is_action_pressed("fullscreen") and !fullscreen:
+		fullscreen = true
+		print("fullscreen")
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	elif Input.is_action_pressed("fullscreen") and fullscreen:
+		fullscreen = false
+		print("fullscreen")
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 
 # ============================================================
@@ -460,7 +472,6 @@ func handle_keyboard_input(event: InputEvent) -> void:
 
 	if not event.pressed:
 		return
-
 
 # ============================================================
 # PHYSICS
@@ -989,19 +1000,62 @@ func hold_object(
 
 	var rigidbody := object as RigidBody3D
 
-	var spring_strength := 80.0
-	var damping := 12.0
+	# ========================================================
+	# OBJECT MASS
+	# ========================================================
+
+	var object_mass: float = max(
+		rigidbody.mass,
+		0.1
+	)
+
+	# ========================================================
+	# STRENGTH
+	# ========================================================
+
+	# 100 strength is considered extremely strong.
+	#
+	# This controls how closely the object follows the player.
+	var strength_factor: float = clamp(
+		player_strength / 100.0,
+		0.1,
+		2.0
+	)
+
+	# Heavy objects become progressively less responsive.
+	var weight_factor: float = clamp(
+		10.0 / object_mass,
+		0.25,
+		1.0
+	)
+
+	var control_factor: float = (
+		strength_factor
+		* weight_factor
+	)
+
+	# ========================================================
+	# HOLDING
+	# ========================================================
+
+	var spring_strength: float = 120.0
+	var damping: float = 18.0
 
 	if zero_gravity:
-		spring_strength = 350.0
-		damping = 35.0
+		spring_strength = 400.0
+		damping = 40.0
 
-	var offset := (
+	spring_strength *= control_factor
+	damping *= control_factor
+
+	var offset: Vector3 = (
 		target_position
 		- rigidbody.global_position
 	)
 
-	var force := offset * spring_strength
+	var force: Vector3 = (
+		offset * spring_strength
+	)
 
 	force -= (
 		rigidbody.linear_velocity
@@ -1009,6 +1063,10 @@ func hold_object(
 	)
 
 	rigidbody.apply_central_force(force)
+
+	# ========================================================
+	# ROTATION
+	# ========================================================
 
 	var rotation_smoothing := 15.0
 
@@ -1174,17 +1232,23 @@ func update_object_info() -> void:
 	# --------------------------------------------------------
 
 	var interactable := false
+	var grabbable := false
 	var current_node: Node = object
 
 	while current_node != null:
 		if current_node.is_in_group("Interactable"):
 			interactable = true
 			break
+		if current_node.is_in_group("Grabbable"):
+			grabbable = true
+			break
 
 		current_node = current_node.get_parent()
 
 	if interactable:
 		interact_prompt.text = "[F] - Interact"
+	elif grabbable and !held_object:
+		interact_prompt.text = "[F] - Grab"
 	else:
 		interact_prompt.text = ""
 
