@@ -14,8 +14,8 @@ config/name="DEADWEIGHT"
 config/version="0.1"
 run/main_scene="uid://bqj4f3i70dhdc"
 config/features=PackedStringArray("4.6", "Forward Plus")
-boot_splash/bg_color=Color(0.19172154, 0, 0.4030085, 1)
-boot_splash/show_image=false
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="uid://dnh77x7pabi7"
 config/icon="uid://dnh77x7pabi7"
 
 [autoload]

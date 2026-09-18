@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://bchix0jpv46lx" path="res://addons/cyclops_level_builder/nodes/cyclops_block.gd" id="5_gpou2"]
 [ext_resource type="Script" uid="uid://c5jpx1aoa7iso" path="res://addons/cyclops_level_builder/resources/data_vector_byte.gd" id="6_nqv73"]
 [ext_resource type="Script" uid="uid://dekcd1o0m0k3r" path="res://addons/cyclops_level_builder/resources/data_vector_float.gd" id="7_hw3ol"]
+[ext_resource type="Material" uid="uid://dtk1fxs3ain8w" path="res://assets/materials/window.tres" id="7_nqv73"]
 [ext_resource type="Script" uid="uid://dfd47cc554yqi" path="res://addons/cyclops_level_builder/resources/data_vector_int.gd" id="8_1l14q"]
 [ext_resource type="PackedScene" uid="uid://gs0lpdh4o51l" path="res://assets/ship/airlock.tscn" id="8_o01ar"]
 [ext_resource type="PackedScene" uid="uid://3x3rteu38wsr" path="res://assets/object/button.tscn" id="9_gpou2"]
@@ -1366,6 +1367,119 @@ face_vertex_data = {
 "vertex_index": SubResource("Resource_4ds1q")
 }
 
+[sub_resource type="Resource" id="Resource_o2vwp"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_vtnyc"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_h47jp"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(0, 0, 0, 0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_k5vlw"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(1, 1, 1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_rqfde"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(-1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0, 0, 0, -1)
+data_type = 6
+stride = 3
+
+[sub_resource type="Resource" id="Resource_umx5c"]
+script = ExtResource("8_1l14q")
+data = PackedInt32Array(0, 0, 0, 0, 0, 0)
+data_type = 1
+
+[sub_resource type="Resource" id="Resource_lv5jl"]
+script = ExtResource("8_1l14q")
+data = PackedInt32Array(0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5)
+data_type = 1
+
+[sub_resource type="Resource" id="Resource_vrmup"]
+script = ExtResource("8_1l14q")
+data = PackedInt32Array(0, 1, 2, 3, 7, 6, 5, 4, 1, 0, 4, 5, 2, 1, 5, 6, 3, 2, 6, 7, 0, 3, 7, 4)
+data_type = 1
+
+[sub_resource type="Resource" id="Resource_mnfgp"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(-1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1)
+data_type = 6
+stride = 3
+
+[sub_resource type="Resource" id="Resource_emowp"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_th6c0"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334, 1, 1, 1, 0.33333334)
+data_type = 4
+stride = 4
+
+[sub_resource type="Resource" id="Resource_82jka"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(9, -3, 8, -3, 8, -1, 9, -1, 9, -1, 8, -1, 8, -3, 9, -3, 2, 8, 2, 9, -2, 9, -2, 8, 2, -1, 2, -3, -2, -3, -2, -1, 2, 9, 2, 8, -2, 8, -2, 9, 2, -3, 2, -1, -2, -1, -2, -3)
+data_type = 5
+stride = 2
+
+[sub_resource type="Resource" id="Resource_uuaeb"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(0, 2, 0, 0, 2, 1, 0, 0, 1, 0, 0, 0, 4, 2, 0, 4, 2, 1, 4, 0, 1, 4, 0, 0)
+data_type = 6
+stride = 3
+
+[sub_resource type="Resource" id="Resource_deysh"]
+script = ExtResource("7_hw3ol")
+data = PackedFloat32Array(-0.21821788, 0.43643576, -0.8728715, -0.21821788, 0.43643576, 0.8728715, -0.21821788, -0.43643576, 0.8728715, -0.21821788, -0.43643576, -0.8728715, 0.21821788, 0.43643576, -0.8728715, 0.21821788, 0.43643576, 0.8728715, 0.21821788, -0.43643576, 0.8728715, 0.21821788, -0.43643576, -0.8728715)
+data_type = 6
+stride = 3
+
+[sub_resource type="Resource" id="Resource_h6c86"]
+script = ExtResource("6_nqv73")
+data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0)
+
+[sub_resource type="Resource" id="Resource_hlelp"]
+script = ExtResource("9_tl6is")
+num_vertices = 8
+num_edges = 12
+num_faces = 6
+num_face_vertices = 24
+active_vertex = -1
+active_edge = -1
+active_face = -1
+active_face_vertex = -1
+edge_vertex_indices = PackedInt32Array(0, 1, 1, 2, 2, 3, 3, 0, 7, 6, 6, 5, 5, 4, 4, 7, 0, 4, 5, 1, 6, 2, 7, 3)
+edge_face_indices = PackedInt32Array(0, 2, 0, 3, 0, 4, 0, 5, 1, 4, 1, 3, 1, 2, 1, 5, 2, 5, 2, 3, 3, 4, 4, 5)
+face_vertex_count = PackedInt32Array(4, 4, 4, 4, 4, 4)
+face_vertex_indices = PackedInt32Array(0, 1, 2, 3, 7, 6, 5, 4, 1, 0, 4, 5, 2, 1, 5, 6, 3, 2, 6, 7, 0, 3, 7, 4)
+vertex_data = {
+"normal": SubResource("Resource_deysh"),
+"position": SubResource("Resource_uuaeb"),
+"selected": SubResource("Resource_h6c86")
+}
+edge_data = {
+"selected": SubResource("Resource_o2vwp"),
+"uv_seam": SubResource("Resource_vtnyc")
+}
+face_data = {
+"material_index": SubResource("Resource_umx5c"),
+"normal": SubResource("Resource_rqfde"),
+"selected": SubResource("Resource_h47jp"),
+"visible": SubResource("Resource_k5vlw")
+}
+face_vertex_data = {
+"color": SubResource("Resource_th6c0"),
+"face_index": SubResource("Resource_lv5jl"),
+"normal": SubResource("Resource_mnfgp"),
+"selected": SubResource("Resource_emowp"),
+"uv0": SubResource("Resource_82jka"),
+"vertex_index": SubResource("Resource_vrmup")
+}
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_v8d56"]
 size = Vector3(0.6365601, 2.1845703, 2.7)
 
@@ -1447,6 +1561,12 @@ mesh_vector_data = SubResource("Resource_i813o")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 7)
 script = ExtResource("5_gpou2")
 mesh_vector_data = SubResource("Resource_sr66p")
+
+[node name="Block_12" type="Node3D" parent="Cyclops/ShipGeometry" unique_id=450171163]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1, -9)
+script = ExtResource("5_gpou2")
+mesh_vector_data = SubResource("Resource_hlelp")
+materials = Array[Material]([ExtResource("7_nqv73")])
 
 [node name="PilotArea" type="Area3D" parent="Cyclops" unique_id=2006614566]
 transform = Transform3D(9.75, 0, 0, 0, 1, 0, 0, 0, 0.7, 4, 0.6, -7.6)
