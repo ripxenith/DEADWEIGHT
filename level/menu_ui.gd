@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const CURRENT_VERSION := "0.0.9"
+const CURRENT_VERSION := "0.1.0"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 
@@ -18,11 +18,9 @@ var http_request: HTTPRequest
 func _ready() -> void:
 	print_debug("Main menu loaded.")
 
-	# Make sure the update button is connected.
 	if not update_button.pressed.is_connected(_on_update_pressed):
 		update_button.pressed.connect(_on_update_pressed)
 
-	# Hide the update button until we know an update exists.
 	update_button.hide()
 
 	update_label.text = (
@@ -40,25 +38,20 @@ func _ready() -> void:
 
 func _on_host_game_pressed() -> void:
 	print_debug("Host Game pressed.")
-
 	Network.host_game()
 
 
 func _on_join_game_pressed() -> void:
-	print_debug(
-		"Join Game is handled through Steam invites."
-	)
+	print_debug("Join Game is handled through Steam invites.")
 
 
 func _on_invite_button_pressed() -> void:
 	print_debug("Invite button pressed.")
-
 	Network.show_invite_dialog()
 
 
 func _on_quit_pressed() -> void:
 	print_debug("Quit pressed.")
-
 	get_tree().quit()
 
 
@@ -196,6 +189,8 @@ func _on_version_request_completed(
 
 	if version_data.has("download"):
 		update_url = str(version_data["download"])
+	else:
+		update_url = ""
 
 	print_debug(
 		"Current version: "
@@ -205,6 +200,11 @@ func _on_version_request_completed(
 	print_debug(
 		"Latest version: "
 		+ latest_version
+	)
+
+	print_debug(
+		"Download URL: "
+		+ update_url
 	)
 
 	if _is_newer_version(latest_version, CURRENT_VERSION):
@@ -296,7 +296,9 @@ func download_update() -> void:
 	print_debug("UPDATE BUTTON PRESSED")
 
 	if not update_available:
-		print_debug("Update button pressed, but no update is available.")
+		print_debug(
+			"Update button pressed, but no update is available."
+		)
 		return
 
 	if update_url.is_empty():
@@ -308,12 +310,28 @@ func download_update() -> void:
 		+ latest_version
 	)
 
+	var game_executable: String = OS.get_executable_path()
+	var game_directory: String = game_executable.get_base_dir()
+
+	print_debug(
+		"Game executable: "
+		+ game_executable
+	)
+
+	print_debug(
+		"Game directory: "
+		+ game_directory
+	)
+
 	var updater_script: String = (
 		OS.get_user_data_dir()
 		+ "/update.ps1"
 	)
 
-	var game_executable: String = OS.get_executable_path()
+	var update_log: String = (
+		OS.get_user_data_dir()
+		+ "/update_log.txt"
+	)
 
 	var script := """
 $ErrorActionPreference = "Stop"
@@ -321,27 +339,116 @@ $ErrorActionPreference = "Stop"
 $downloadUrl = "%s"
 $gameDirectory = "%s"
 $gameExecutable = "%s"
+$updateLog = "%s"
 
-$tempFile = Join-Path $env:TEMP "DEADWEIGHT_update.zip"
+function Write-Log($message) {
+    Add-Content -Path $updateLog -Value (
+        ("[" + (Get-Date -Format "yyyy-MM-dd HH:mm:ss") + "] " + $message)
+    )
+}
 
-Invoke-WebRequest `
-    -Uri $downloadUrl `
-    -OutFile $tempFile
+try {
+    Write-Log "========================================"
+    Write-Log "DEADWEIGHT updater started"
+    Write-Log "Download URL: $downloadUrl"
+    Write-Log "Game directory: $gameDirectory"
+    Write-Log "Game executable: $gameExecutable"
 
-Expand-Archive `
-    -Path $tempFile `
-    -DestinationPath $gameDirectory `
-    -Force
+    $tempFile = Join-Path $env:TEMP "DEADWEIGHT_update.zip"
 
-Remove-Item $tempFile -Force
+    Write-Log "Downloading update..."
 
-Start-Process -FilePath $gameExecutable
+    Invoke-WebRequest `
+        -Uri $downloadUrl `
+        -OutFile $tempFile `
+        -UseBasicParsing
+
+    Write-Log "Download complete."
+
+    if (!(Test-Path $tempFile)) {
+        throw "Downloaded ZIP file does not exist."
+    }
+
+    Write-Log "Waiting for DEADWEIGHT processes to close..."
+
+    # Wait for both Godot executables to completely exit.
+    for ($i = 0; $i -lt 60; $i++) {
+
+        $gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
+        $consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
+
+        if ($null -eq $gameProcess -and $null -eq $consoleProcess) {
+            Write-Log "All DEADWEIGHT processes have closed."
+            break
+        }
+
+        Write-Log "DEADWEIGHT is still running. Waiting..."
+
+        Start-Sleep -Milliseconds 500
+    }
+
+    # Make absolutely sure the processes are gone.
+    $gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
+    $consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
+
+    if ($null -ne $gameProcess -or $null -ne $consoleProcess) {
+        throw "DEADWEIGHT is still running after waiting 30 seconds."
+    }
+
+    Write-Log "Extracting update..."
+
+    # Retry extraction several times in case Windows is still releasing a file.
+    $extracted = $false
+
+    for ($attempt = 1; $attempt -le 10; $attempt++) {
+
+        try {
+            Write-Log "Extraction attempt $attempt..."
+
+            Expand-Archive `
+                -Path $tempFile `
+                -DestinationPath $gameDirectory `
+                -Force
+
+            $extracted = $true
+            Write-Log "Extraction successful."
+            break
+        }
+        catch {
+            Write-Log "Extraction attempt $attempt failed: $($_.Exception.Message)"
+
+            if ($attempt -lt 10) {
+                Start-Sleep -Seconds 1
+            }
+        }
+    }
+
+    if (!$extracted) {
+        throw "Failed to extract update after 10 attempts."
+    }
+
+    Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+
+    Write-Log "Starting updated game..."
+
+    Start-Process -FilePath $gameExecutable
+
+    Write-Log "Update completed successfully."
+
+}
+catch {
+    Write-Log "========================================"
+    Write-Log "UPDATE FAILED"
+    Write-Log $_.Exception.Message
+    Write-Log $_.ScriptStackTrace
+}
 
 exit
 """ % [
-		update_url,
-		ProjectSettings.globalize_path("res://"),
-		game_executable
+		_escape_powershell_string(update_url),
+		_escape_powershell_string(game_directory),
+		_escape_powershell_string(game_executable),
+		_escape_powershell_string(update_log)
 	]
 
 	var file := FileAccess.open(
@@ -350,7 +457,9 @@ exit
 	)
 
 	if file == null:
-		print_debug("Failed to create updater script.")
+		print_debug(
+			"Failed to create updater script."
+		)
 		return
 
 	file.store_string(script)
@@ -361,12 +470,19 @@ exit
 		+ updater_script
 	)
 
+	print_debug(
+		"Updater log will be written to: "
+		+ update_log
+	)
+
 	var process_id: int = OS.create_process(
 		"powershell.exe",
 		[
 			"-NoProfile",
 			"-ExecutionPolicy",
 			"Bypass",
+			"-WindowStyle",
+			"Hidden",
 			"-File",
 			updater_script
 		]
@@ -378,12 +494,24 @@ exit
 	)
 
 	if process_id == -1:
-		print_debug("ERROR: Failed to start PowerShell updater.")
+		print_debug(
+			"ERROR: Failed to start PowerShell updater."
+		)
 		return
 
-	print_debug("Closing game for update.")
+	print_debug(
+		"Closing game for update."
+	)
 
 	get_tree().quit()
+
+
+# ============================================================
+# POWERSHELL STRING ESCAPING
+# ============================================================
+
+func _escape_powershell_string(value: String) -> String:
+	return value.replace("`", "``").replace("\"", "`\"")
 
 
 # ============================================================
