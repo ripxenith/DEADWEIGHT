@@ -1,0 +1,200 @@
+[gd_scene format=3 uid="uid://cyocg2jfiat57"]
+
+[ext_resource type="Script" uid="uid://cv8n3nrn7yxsw" path="res://assets/player/fps.gd" id="1_1np0y"]
+[ext_resource type="Theme" uid="uid://c6p2l2s66xekd" path="res://assets/theme/menu_theme.tres" id="1_dtcvl"]
+[ext_resource type="Script" uid="uid://cyuv1x0twljrg" path="res://assets/player/player_ui.gd" id="1_ndm4a"]
+[ext_resource type="Texture2D" uid="uid://drb14vh0ecwtx" path="res://assets/ui/grabv2.png" id="2_ndm4a"]
+[ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_yjs2o"]
+[ext_resource type="Texture2D" uid="uid://8qmiqbkbbvtw" path="res://assets/ui/crosshair.png" id="4_n7ygu"]
+
+[node name="PlayerUI" type="CanvasLayer" unique_id=1894593199]
+script = ExtResource("1_ndm4a")
+
+[node name="GrabUI" type="TextureRect" parent="." unique_id=1017932733]
+visible = false
+offset_right = 200.0
+offset_bottom = 200.0
+scale = Vector2(0.29173297, 0.29173297)
+pivot_offset = Vector2(-40, -40)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = ExtResource("2_ndm4a")
+
+[node name="FPS" type="Label" parent="." unique_id=1585240937]
+offset_left = 17.0
+offset_top = 16.0
+offset_right = 211.0
+offset_bottom = 39.0
+size_flags_horizontal = 0
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "FPS: "
+script = ExtResource("1_1np0y")
+
+[node name="DebugInfo" type="Label" parent="." unique_id=1543017075]
+offset_left = 17.0
+offset_top = 40.0
+offset_right = 211.0
+offset_bottom = 63.0
+size_flags_horizontal = 0
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "DEBUG: "
+
+[node name="DebugInfo2" type="Label" parent="." unique_id=1472087746]
+offset_left = 937.0
+offset_top = 16.0
+offset_right = 1131.0
+offset_bottom = 39.0
+size_flags_horizontal = 8
+theme = ExtResource("1_dtcvl")
+theme_override_colors/font_color = Color(0.96, 0.832, 0, 1)
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "$1,337"
+horizontal_alignment = 2
+
+[node name="UIContainer" type="MarginContainer" parent="." unique_id=339930667]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pause Menu" type="MarginContainer" parent="UIContainer" unique_id=2094654188]
+visible = false
+layout_mode = 2
+theme = ExtResource("1_dtcvl")
+
+[node name="PanelContainer" type="PanelContainer" parent="UIContainer/Pause Menu" unique_id=1919551535]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/Pause Menu/PanelContainer" unique_id=1700845513]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2" unique_id=920446811]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "pause menu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2" unique_id=622350805]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Button2" type="Button" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2/VBoxContainer" unique_id=411222150]
+layout_mode = 2
+text = "settings"
+
+[node name="Button" type="Button" parent="UIContainer/Pause Menu/PanelContainer/VBoxContainer2/VBoxContainer" unique_id=215111693]
+layout_mode = 2
+text = "exit"
+
+[node name="CenterUI" type="Control" parent="UIContainer" unique_id=25988265]
+layout_mode = 2
+
+[node name="Crosshair" type="TextureRect" parent="UIContainer/CenterUI" unique_id=1984595537]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.555542
+offset_top = -4.8125
+offset_right = 8.555542
+offset_bottom = 4.8125
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_n7ygu")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/CenterUI" unique_id=104801968]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -135.25
+offset_top = 48.352936
+offset_right = 135.25
+offset_bottom = 175.64706
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ObjectInfo" type="Label" parent="UIContainer/CenterUI/VBoxContainer" unique_id=308052255]
+visible = false
+layout_mode = 2
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+theme_override_font_sizes/font_size = 1
+text = "OBJECT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ObjectValue" type="Label" parent="UIContainer/CenterUI/VBoxContainer" unique_id=1974682154]
+visible = false
+layout_mode = 2
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InteractPrompt" type="Label" parent="UIContainer/CenterUI" unique_id=934564441]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = 20.5
+offset_right = 42.0
+offset_bottom = 43.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+theme_override_font_sizes/font_size = 8
+text = "[F] Interact"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CornerUI" type="Control" parent="UIContainer" unique_id=637000383]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/CornerUI" unique_id=1421295291]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -141.0
+offset_right = 143.0
+offset_bottom = -16.0
+grow_vertical = 0
+theme = ExtResource("1_dtcvl")
+theme_override_constants/separation = 11
+
+[node name="StaminaLabel" type="Label" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1599162370]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "STAMINA"
+
+[node name="StaminaBar" type="ProgressBar" parent="UIContainer/CornerUI/VBoxContainer" unique_id=197735288]
+layout_mode = 2
+rounded = true
+
+[node name="ThrusterLabel" type="Label" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1761204418]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "THRUSTERS"
+
+[node name="ThrusterBar" type="ProgressBar" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1590163773]
+layout_mode = 2
+rounded = true

@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://5vyjepsn7kqf"]
+
+[ext_resource type="PackedScene" uid="uid://che1i1vogjyx6" path="res://blender/sun.blend" id="1_dsrwa"]
+[ext_resource type="Shader" uid="uid://dmj3wn02a0sgu" path="res://blender/sun/sun.tres" id="2_lfpaq"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kekg4"]
+render_priority = 0
+shader = ExtResource("2_lfpaq")
+
+[node name="sun" unique_id=664630115 instance=ExtResource("1_dsrwa")]
+
+[node name="Sphere" parent="." index="0" unique_id=1880774972]
+surface_material_override/0 = SubResource("ShaderMaterial_kekg4")

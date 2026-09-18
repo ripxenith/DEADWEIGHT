@@ -1,0 +1,183 @@
+[gd_scene format=3 uid="uid://cpmrqk60vbfyh"]
+
+[ext_resource type="Shader" uid="uid://cobmmovbf5cq8" path="res://level/environment/space_clouds.gdshader" id="2_axccs"]
+[ext_resource type="Shader" uid="uid://d27u66xogwr47" path="res://level/environment/starfield.gdshader" id="3_61vfl"]
+[ext_resource type="Shader" uid="uid://0mmn22aieiyh" path="res://level/environment/sun.gdshader" id="4_rfciw"]
+[ext_resource type="PackedScene" uid="uid://bsbh6jnpj5xho" path="res://assets/ship/ship.tscn" id="5_787jx"]
+[ext_resource type="Shader" uid="uid://c4ku0qqwjgb6t" path="res://level/environment/sun_atmosphere.gdshader" id="5_abs7h"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7u2yt"]
+render_priority = 0
+shader = ExtResource("2_axccs")
+shader_parameter/cloud_scale = 30.0
+shader_parameter/cloud_density = 0.41600001976
+shader_parameter/cloud_contrast = 5.0
+shader_parameter/cloud_brightness = 1.2050000572375
+shader_parameter/cloud_opacity = 0.0610000028975
+shader_parameter/milky_way_width = 0.22
+shader_parameter/milky_way_strength = 0.370000017575
+shader_parameter/milky_way_density = 1.9730000699675
+shader_parameter/milky_way_curve = 1.8570000882075
+shader_parameter/dust_strength = 1.010000047975
+shader_parameter/dust_scale = 25.2610011523975
+shader_parameter/dust_contrast = 0.5
+shader_parameter/galactic_core_direction = Vector3(0, 0, 1)
+shader_parameter/galactic_core_size = 0.05700000200898
+shader_parameter/galactic_core_brightness = 10.0
+shader_parameter/galactic_core_color = Color(1, 0.72, 0.45, 1)
+shader_parameter/nebula_strength = 0.41200001957
+shader_parameter/nebula_scale = 2.2
+shader_parameter/nebula_softness = 1.4
+shader_parameter/purple_nebula_strength = 0.2190000104025
+shader_parameter/blue_nebula_strength = 0.4710000223725
+shader_parameter/pink_nebula_strength = 0.286000013585
+shader_parameter/purple_nebula_color = Color(0.55, 0.08, 0.85, 1)
+shader_parameter/blue_nebula_color = Color(0.08, 0.3, 1, 1)
+shader_parameter/pink_nebula_color = Color(1, 0.12, 0.4, 1)
+shader_parameter/distant_dust_strength = 0.2810000133475
+shader_parameter/distant_dust_scale = 1.1
+shader_parameter/distant_dust_softness = 1.8
+shader_parameter/distant_dust_color = Color(0.12, 0.1, 0.2, 1)
+shader_parameter/cloud_color = Color(0.25, 0.08, 0.35, 1)
+shader_parameter/milky_way_color = Color(0.54901963, 0.03137255, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tjibv"]
+render_priority = 0
+shader = ExtResource("3_61vfl")
+shader_parameter/star_density = 200.0
+shader_parameter/star_chance = 0.09700000390898
+shader_parameter/rare_star_chance = 0.0070000003325
+shader_parameter/min_brightness = 0.062000002945
+shader_parameter/max_brightness = 2.3970001138575
+shader_parameter/rare_brightness = 4.2810001558475
+shader_parameter/min_size = 0.00999999977648
+shader_parameter/max_size = 0.20000000810297
+shader_parameter/rare_star_size = 1.29600001406
+shader_parameter/normal_emission = 2.0
+shader_parameter/rare_emission = 8.0
+shader_parameter/min_twinkle_speed = 0.102000004845
+shader_parameter/max_twinkle_speed = 1.438000068305
+shader_parameter/twinkle_strength = 0.16400000779
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gr5xm"]
+noise_type = 0
+seed = -13
+frequency = 0.0546
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tjibv"]
+width = 2048
+height = 2048
+noise = SubResource("FastNoiseLite_gr5xm")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gr5xm"]
+render_priority = 0
+shader = ExtResource("4_rfciw")
+shader_parameter/sun_color = Color(0.9999998, 0.120797835, 0.024681449, 1)
+shader_parameter/surface_speed = 0.015
+shader_parameter/surface_detail = 11.455
+shader_parameter/sunspot_strength = 8.44
+shader_parameter/sunspot_scale = 0.485
+shader_parameter/emission_strength = 999.0
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_tjibv")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6iec2"]
+noise_type = 3
+seed = 17
+frequency = 0.0523
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7u2yt"]
+width = 2048
+height = 2048
+noise = SubResource("FastNoiseLite_6iec2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6iec2"]
+render_priority = 0
+shader = ExtResource("5_abs7h")
+shader_parameter/corona_color = Color(1, 0.35, 0.02, 1)
+shader_parameter/corona_strength = 21.675
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_7u2yt")
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_ysybb"]
+
+[sub_resource type="Sky" id="Sky_mmrwg"]
+sky_material = SubResource("PanoramaSkyMaterial_ysybb")
+
+[sub_resource type="Environment" id="Environment_o8jv7"]
+background_mode = 2
+sky = SubResource("Sky_mmrwg")
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 2.3
+glow_bloom = 0.23
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a6uwn"]
+size = Vector3(71.55629, 0.001, 90.63692)
+
+[node name="level" type="Node3D" unique_id=439587757]
+
+[node name="spaceclouds" type="Node3D" parent="." unique_id=1565249964]
+
+[node name="spaceclouds" type="CSGSphere3D" parent="spaceclouds" unique_id=986025854]
+transform = Transform3D(495, 0, 0, 0, 495, 0, 0, 0, 495, 0, 0, 0)
+visible = false
+flip_faces = true
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_7u2yt")
+
+[node name="starfield" type="Node3D" parent="." unique_id=1505283645]
+
+[node name="starfield" type="CSGSphere3D" parent="starfield" unique_id=783984614]
+transform = Transform3D(500, 0, 0, 0, 500, 0, 0, 0, 500, 0.023364067, 4.7683716e-07, 0.01848507)
+ignore_occlusion_culling = true
+flip_faces = true
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_tjibv")
+
+[node name="sun" type="Node3D" parent="." unique_id=768638706]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29546.557, 12098.786, -17329.87)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="sun" unique_id=1776205856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1696.637, 24.456034, -24.660772)
+light_color = Color(0.9217087, 0.61603504, 0, 1)
+light_energy = 2048.0
+light_indirect_energy = 1.792
+light_volumetric_fog_energy = 0.842
+omni_range = 67331.69
+
+[node name="surface" type="CSGSphere3D" parent="sun" unique_id=13024417]
+transform = Transform3D(45, 0, 0, 0, 45, 0, 0, 0, 45, -1696.637, 24.456034, -24.660772)
+calculate_tangents = false
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_gr5xm")
+
+[node name="atmosphere" type="CSGSphere3D" parent="sun" unique_id=662945706]
+transform = Transform3D(48, 0, 0, 0, 48, 0, 0, 0, 48, -1696.637, 24.456034, -24.660772)
+radius = 100.0
+radial_segments = 32
+rings = 32
+material = SubResource("ShaderMaterial_6iec2")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1671165845]
+environment = SubResource("Environment_o8jv7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=2097424213]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2166214, -8.690633, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=182145548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4892807, 0.1005, 2.067009)
+shape = SubResource("BoxShape3D_a6uwn")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=918645497]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3.0791454, 0)
+spot_range = 13.024267
+spot_angle = 78.62665
+
+[node name="ship" parent="." unique_id=41042865 instance=ExtResource("5_787jx")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)

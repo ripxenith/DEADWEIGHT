@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dlfclmaqnxglu"]
+
+[ext_resource type="Shader" uid="uid://dmj3wn02a0sgu" path="res://blender/sun/sun.tres" id="1_hh7o5"]
+
+[resource]
+resource_name = "Material.001"
+render_priority = 0
+shader = ExtResource("1_hh7o5")

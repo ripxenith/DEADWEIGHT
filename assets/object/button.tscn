@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://3x3rteu38wsr"]
+
+[ext_resource type="Script" uid="uid://njafifplfhss" path="res://assets/object/button.gd" id="1_8gcae"]
+[ext_resource type="Texture2D" uid="uid://drojypr8i61oy" path="res://assets/texture/prototypes/light/texture_09.png" id="1_qxnch"]
+[ext_resource type="Texture2D" uid="uid://b8fgftw3necmf" path="res://assets/texture/prototypes/dark/texture_10.png" id="2_8gcae"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ym378"]
+albedo_texture = ExtResource("1_qxnch")
+
+[sub_resource type="BoxMesh" id="BoxMesh_8p2v8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w3ms1"]
+albedo_texture = ExtResource("2_8gcae")
+
+[sub_resource type="BoxMesh" id="BoxMesh_r8aot"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8gcae"]
+size = Vector3(0.27124023, 0.7919922, 0.7626953)
+
+[node name="InteractableButton" type="StaticBody3D" unique_id=1715095479 groups=["Interactable"]]
+collision_layer = 3
+collision_mask = 3
+script = ExtResource("1_8gcae")
+
+[node name="Node3D" type="Node3D" parent="." unique_id=701079155]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D" unique_id=1180554463]
+transform = Transform3D(0.468, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_ym378")
+mesh = SubResource("BoxMesh_8p2v8")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Node3D" unique_id=964909300]
+transform = Transform3D(0.3, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0, 0)
+material_override = SubResource("StandardMaterial3D_w3ms1")
+mesh = SubResource("BoxMesh_r8aot")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=44608685]
+shape = SubResource("BoxShape3D_8gcae")

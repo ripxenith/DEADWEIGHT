@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://b6jo3qvxih0dn"]
+
+[ext_resource type="PackedScene" uid="uid://che1i1vogjyx6" path="res://blender/sun.blend" id="1_a154i"]
+
+[node name="sun" unique_id=1467871971 instance=ExtResource("1_a154i")]

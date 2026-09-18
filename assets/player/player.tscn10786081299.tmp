@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://bpykclktw5joo"]
+
+[ext_resource type="Script" uid="uid://cimr0lc2argu3" path="res://assets/player/player.gd" id="1_h6syq"]
+[ext_resource type="PackedScene" uid="uid://cyocg2jfiat57" path="res://assets/player/player_ui.tscn" id="2_h6syq"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_crds5"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_w3qpk"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_w3qpk"]
+top_radius = 0.0
+height = 0.684
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_w3qpk"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("head:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("body:rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="player" type="CharacterBody3D" unique_id=283859971]
+script = ExtResource("1_h6syq")
+speed = null
+jump_velocity = null
+gravity = null
+mouse_sensitivity = null
+zero_g_thrust = null
+zero_g_max_speed = null
+zero_g_boost_multiplier = null
+zero_g_roll_speed = null
+throw_force = null
+hold_rotate_force = null
+hold_distance = null
+min_hold_distance = null
+max_hold_distance = null
+hold_scroll_amount = null
+
+[node name="PlayerUI" parent="." unique_id=1894593199 instance=ExtResource("2_h6syq")]
+
+[node name="collision" type="CollisionShape3D" parent="." unique_id=1143878599]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_crds5")
+
+[node name="body" type="MeshInstance3D" parent="." unique_id=1793255393]
+transform = Transform3D(0.6, 0, 0, 0, 1, 0, 0, 0, 0.6, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_w3qpk")
+
+[node name="head" type="MeshInstance3D" parent="." unique_id=852187218]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1.5, 0)
+mesh = SubResource("CylinderMesh_w3qpk")
+
+[node name="player_id_label" type="Label3D" parent="." unique_id=765175438]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 2.4, 0)
+text = "player id"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1427139806]
+replication_config = SubResource("SceneReplicationConfig_w3qpk")
+
+[node name="headpos" type="Marker3D" parent="." unique_id=1806963492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000001, 5.2108035e-15)
+
+[node name="Camera3D" type="Camera3D" parent="headpos" unique_id=1808779893]
+fov = 100.0
+far = 999999.0
+
+[node name="interact_ray" type="RayCast3D" parent="headpos/Camera3D" unique_id=1261777041]
+target_position = Vector3(0, 0, -3.5)
+collide_with_areas = true
+
+[node name="hold_point" type="Marker3D" parent="headpos/Camera3D" unique_id=1253713126]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
