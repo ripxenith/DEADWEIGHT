@@ -514,12 +514,6 @@ func _input(event: InputEvent) -> void:
 
 	if controlling_ship:
 		return
-	
-	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_ESCAPE:
-			pause_menu.handle_escape()
-			get_viewport().set_input_as_handled()
-			return
 
 	if event is InputEventMouseMotion:
 		handle_mouse_motion(event)

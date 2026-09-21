@@ -10,8 +10,9 @@ func _ready() -> void:
 func _on_back_pressed() -> void:
 	back_pressed.emit()
 
-func _input(event: InputEvent) -> void:
+
+func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_ESCAPE:
+		if event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
 			back_pressed.emit()
 			get_viewport().set_input_as_handled()
