@@ -555,8 +555,6 @@ func toggle_pause_menu() -> void:
 			Input.MOUSE_MODE_VISIBLE
 		)
 
-		_focus_pause_menu()
-
 
 func open_pause_menu() -> void:
 	if pause_menu_open:
@@ -570,8 +568,6 @@ func open_pause_menu() -> void:
 		Input.MOUSE_MODE_VISIBLE
 	)
 
-	_focus_pause_menu()
-
 
 func close_pause_menu() -> void:
 	if not pause_menu_open:
@@ -584,41 +580,6 @@ func close_pause_menu() -> void:
 	Input.set_mouse_mode(
 		Input.MOUSE_MODE_CAPTURED
 	)
-
-
-func _focus_pause_menu() -> void:
-	var first_focusable: Control = (
-		_find_first_focusable_control(
-			pause_menu
-		)
-	)
-
-	if first_focusable != null:
-		first_focusable.grab_focus()
-
-
-func _find_first_focusable_control(
-	node: Node
-) -> Control:
-
-	for child in node.get_children():
-
-		if child is Control:
-			var control := child as Control
-
-			if (
-				control.focus_mode != Control.FOCUS_NONE
-				and control.visible
-				and not control.disabled
-			):
-				return control
-
-		var result := _find_first_focusable_control(child)
-
-		if result != null:
-			return result
-
-	return null
 
 
 # ============================================================

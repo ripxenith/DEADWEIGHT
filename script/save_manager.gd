@@ -2,8 +2,13 @@ extends Node
 
 
 const SAVE_VERSION: int = 1
+
 const SAVE_DIRECTORY: String = "user://saves/"
 const SAVE_FILE: String = "user://saves/save.json"
+
+# Used when running completely offline without a
+# multiplayer peer or Network autoload.
+const OFFLINE_PLAYER_ID: int = 90000000000000001
 
 
 var save_data: Dictionary = {
@@ -31,26 +36,51 @@ func _ready() -> void:
 # PLAYER ID
 # ============================================================
 
+# Returns this instance's universal player ID.
+#
+# IMPORTANT:
+#
+# SaveManager does NOT care whether this is:
+#
+# - a Steam ID
+# - a local multiplayer ID
+# - an offline ID
+#
+# Network is responsible for resolving that.
+#
 func get_local_player_id() -> int:
-	# --------------------------------------------------------
-	# STEAM
-	# --------------------------------------------------------
 
-	if Network.is_using_steam():
-		return int(Steam.getSteamID())
+	var network_node := get_node_or_null(
+		"/root/Network"
+	)
 
 	# --------------------------------------------------------
-	# LOCAL TESTING
+	# NETWORK
 	# --------------------------------------------------------
-	
-	# Each local Godot instance gets a different ID based
-	# on its multiplayer peer ID.
-	
-	if multiplayer.has_multiplayer_peer():
-		return 90000000000000000 + multiplayer.get_unique_id()
 
-	# Fallback for running without multiplayer.
-	return 90000000000000001
+	if network_node != null:
+
+		if network_node.has_method(
+			"get_player_id"
+		):
+
+			var peer_id := multiplayer.get_unique_id()
+
+			var player_id := int(
+				network_node.get_player_id(
+					peer_id
+				)
+			)
+
+			if player_id > 0:
+				return player_id
+
+
+	# --------------------------------------------------------
+	# OFFLINE
+	# --------------------------------------------------------
+
+	return OFFLINE_PLAYER_ID
 
 
 # ============================================================
@@ -58,10 +88,17 @@ func get_local_player_id() -> int:
 # ============================================================
 
 func load_save() -> void:
+
 	if not FileAccess.file_exists(SAVE_FILE):
-		print("SAVE MANAGER: No save found. Creating new save.")
+
+		print(
+			"SAVE MANAGER: No save found. Creating new save."
+		)
+
 		save_game()
+
 		return
+
 
 	var file := FileAccess.open(
 		SAVE_FILE,
@@ -69,32 +106,52 @@ func load_save() -> void:
 	)
 
 	if file == null:
-		push_error("SAVE MANAGER: Failed to open save file.")
+
+		push_error(
+			"SAVE MANAGER: Failed to open save file."
+		)
+
 		return
 
+
 	var text: String = file.get_as_text()
+
 	file.close()
 
+
 	var json := JSON.new()
-	var parse_result: Error = json.parse(text)
+
+	var parse_result: Error = json.parse(
+		text
+	)
 
 	if parse_result != OK:
+
 		push_error(
 			"SAVE MANAGER: Failed to parse save file."
 		)
+
 		return
+
 
 	var data: Variant = json.data
 
 	if typeof(data) != TYPE_DICTIONARY:
+
 		push_error(
-			"SAVE MANAGER: Save file does not contain a Dictionary."
+			"SAVE MANAGER: Save file does not contain "
+			+ "a Dictionary."
 		)
+
 		return
+
 
 	save_data = data
 
+	_ensure_save_structure()
+
 	_migrate_save()
+
 
 	print(
 		"SAVE MANAGER: Save loaded successfully."
@@ -102,14 +159,46 @@ func load_save() -> void:
 
 
 func save_game() -> void:
-	# Only the host should write the campaign save.
+
+	# --------------------------------------------------------
+	# MULTIPLAYER
+	# --------------------------------------------------------
+	#
+	# Only the server/host writes the campaign save.
+	#
+	# This works identically for:
+	#
+	# LOCAL
+	# STEAM
+	#
+	# --------------------------------------------------------
+
 	if multiplayer.has_multiplayer_peer():
+
 		if not multiplayer.is_server():
+
+			print(
+				"SAVE MANAGER: Client attempted to save. "
+				+ "Ignoring request."
+			)
+
 			return
 
+
+	# --------------------------------------------------------
+	# MAKE SURE SAVE DIRECTORY EXISTS
+	# --------------------------------------------------------
+
 	DirAccess.make_dir_recursive_absolute(
-		ProjectSettings.globalize_path(SAVE_DIRECTORY)
+		ProjectSettings.globalize_path(
+			SAVE_DIRECTORY
+		)
 	)
+
+
+	# --------------------------------------------------------
+	# WRITE SAVE
+	# --------------------------------------------------------
 
 	var file := FileAccess.open(
 		SAVE_FILE,
@@ -117,16 +206,24 @@ func save_game() -> void:
 	)
 
 	if file == null:
+
 		push_error(
-			"SAVE MANAGER: Failed to open save file for writing."
+			"SAVE MANAGER: Failed to open save file "
+			+ "for writing."
 		)
+
 		return
 
+
 	file.store_string(
-		JSON.stringify(save_data, "\t")
+		JSON.stringify(
+			save_data,
+			"\t"
+		)
 	)
 
 	file.close()
+
 
 	print(
 		"SAVE MANAGER: Game saved."
@@ -134,15 +231,75 @@ func save_game() -> void:
 
 
 # ============================================================
+# SAVE STRUCTURE
+# ============================================================
+
+func _ensure_save_structure() -> void:
+
+	if not save_data.has("save_version"):
+
+		save_data["save_version"] = SAVE_VERSION
+
+
+	if not save_data.has("players"):
+
+		save_data["players"] = {}
+
+
+	if not save_data.has("world"):
+
+		save_data["world"] = {}
+
+
+	if not save_data["world"].has(
+		"ship_upgrades"
+	):
+
+		save_data["world"]["ship_upgrades"] = {}
+
+
+	if not save_data["world"].has(
+		"unlocked_areas"
+	):
+
+		save_data["world"]["unlocked_areas"] = []
+
+
+	if not save_data.has("progression"):
+
+		save_data["progression"] = {}
+
+
+	if not save_data["progression"].has(
+		"total_sales"
+	):
+
+		save_data["progression"]["total_sales"] = 0
+
+
+	if not save_data["progression"].has(
+		"missions_completed"
+	):
+
+		save_data["progression"]["missions_completed"] = 0
+
+
+# ============================================================
 # SAVE MIGRATION
 # ============================================================
 
 func _migrate_save() -> void:
+
 	var current_version: int = int(
-		save_data.get("save_version", 1)
+		save_data.get(
+			"save_version",
+			1
+		)
 	)
 
+
 	if current_version < SAVE_VERSION:
+
 		print(
 			"SAVE MANAGER: Migrating save from version ",
 			current_version,
@@ -150,9 +307,12 @@ func _migrate_save() -> void:
 			SAVE_VERSION
 		)
 
+
 		# Future save migrations go here.
 
+
 		save_data["save_version"] = SAVE_VERSION
+
 		save_game()
 
 
@@ -160,23 +320,44 @@ func _migrate_save() -> void:
 # PLAYER MONEY
 # ============================================================
 
-func get_player_money(player_id: int) -> int:
-	var player_id_string: String = str(player_id)
+func get_player_money(
+	player_id: int
+) -> int:
 
-	var players: Dictionary = save_data["players"]
+	var player_id_string: String = str(
+		player_id
+	)
 
-	if not players.has(player_id_string):
+	var players: Dictionary = save_data[
+		"players"
+	]
+
+
+	if not players.has(
+		player_id_string
+	):
+
 		return 0
 
-	var player_data: Variant = players[player_id_string]
+
+	var player_data: Variant = players[
+		player_id_string
+	]
+
 
 	if typeof(player_data) != TYPE_DICTIONARY:
+
 		return 0
+
 
 	var player_dictionary: Dictionary = player_data
 
+
 	return int(
-		player_dictionary.get("money", 0)
+		player_dictionary.get(
+			"money",
+			0
+		)
 	)
 
 
@@ -185,27 +366,48 @@ func set_player_money(
 	amount: int
 ) -> void:
 
-	var player_id_string: String = str(player_id)
+	var player_id_string: String = str(
+		player_id
+	)
 
-	var players: Dictionary = save_data["players"]
+	var players: Dictionary = save_data[
+		"players"
+	]
 
-	if not players.has(player_id_string):
+
+	if not players.has(
+		player_id_string
+	):
+
 		players[player_id_string] = {
 			"money": 0
 		}
 
-	var player_data: Variant = players[player_id_string]
+
+	var player_data: Variant = players[
+		player_id_string
+	]
+
 
 	if typeof(player_data) != TYPE_DICTIONARY:
+
 		player_data = {
 			"money": 0
 		}
 
+
 	var player_dictionary: Dictionary = player_data
 
-	player_dictionary["money"] = maxi(amount, 0)
 
-	players[player_id_string] = player_dictionary
+	player_dictionary["money"] = maxi(
+		amount,
+		0
+	)
+
+
+	players[player_id_string] = (
+		player_dictionary
+	)
 
 
 func add_player_money(
@@ -213,7 +415,10 @@ func add_player_money(
 	amount: int
 ) -> void:
 
-	var current_money: int = get_player_money(player_id)
+	var current_money: int = get_player_money(
+		player_id
+	)
+
 
 	set_player_money(
 		player_id,
@@ -226,35 +431,65 @@ func add_player_money(
 # ============================================================
 
 func get_total_sales() -> int:
+
 	return int(
-		save_data["progression"].get("total_sales", 0)
+		save_data["progression"].get(
+			"total_sales",
+			0
+		)
 	)
 
 
-func add_total_sales(amount: int) -> void:
-	var progression: Dictionary = save_data["progression"]
+func add_total_sales(
+	amount: int
+) -> void:
+
+	var progression: Dictionary = save_data[
+		"progression"
+	]
+
 
 	var current_total: int = int(
-		progression.get("total_sales", 0)
+		progression.get(
+			"total_sales",
+			0
+		)
 	)
 
-	progression["total_sales"] = current_total + amount
+
+	progression["total_sales"] = (
+		current_total + amount
+	)
 
 
 func get_missions_completed() -> int:
+
 	return int(
-		save_data["progression"].get("missions_completed", 0)
+		save_data["progression"].get(
+			"missions_completed",
+			0
+		)
 	)
 
 
 func add_mission_completed() -> void:
-	var progression: Dictionary = save_data["progression"]
+
+	var progression: Dictionary = save_data[
+		"progression"
+	]
+
 
 	var current_count: int = int(
-		progression.get("missions_completed", 0)
+		progression.get(
+			"missions_completed",
+			0
+		)
 	)
 
-	progression["missions_completed"] = current_count + 1
+
+	progression["missions_completed"] = (
+		current_count + 1
+	)
 
 
 # ============================================================
@@ -266,37 +501,84 @@ func set_ship_upgrade(
 	level: int
 ) -> void:
 
-	var world: Dictionary = save_data["world"]
-	var upgrades: Dictionary = world["ship_upgrades"]
+	var world: Dictionary = save_data[
+		"world"
+	]
 
-	upgrades[upgrade_name] = maxi(level, 0)
+
+	var upgrades: Dictionary = world[
+		"ship_upgrades"
+	]
+
+
+	upgrades[upgrade_name] = maxi(
+		level,
+		0
+	)
 
 
 func get_ship_upgrade(
 	upgrade_name: String
 ) -> int:
 
-	var world: Dictionary = save_data["world"]
-	var upgrades: Dictionary = world["ship_upgrades"]
+	var world: Dictionary = save_data[
+		"world"
+	]
+
+
+	var upgrades: Dictionary = world[
+		"ship_upgrades"
+	]
+
 
 	return int(
-		upgrades.get(upgrade_name, 0)
+		upgrades.get(
+			upgrade_name,
+			0
+		)
 	)
 
 
-func unlock_area(area_name: String) -> void:
-	var world: Dictionary = save_data["world"]
-	var unlocked_areas: Array = world["unlocked_areas"]
+func unlock_area(
+	area_name: String
+) -> void:
 
-	if not unlocked_areas.has(area_name):
-		unlocked_areas.append(area_name)
+	var world: Dictionary = save_data[
+		"world"
+	]
 
 
-func is_area_unlocked(area_name: String) -> bool:
-	var world: Dictionary = save_data["world"]
-	var unlocked_areas: Array = world["unlocked_areas"]
+	var unlocked_areas: Array = world[
+		"unlocked_areas"
+	]
 
-	return unlocked_areas.has(area_name)
+
+	if not unlocked_areas.has(
+		area_name
+	):
+
+		unlocked_areas.append(
+			area_name
+		)
+
+
+func is_area_unlocked(
+	area_name: String
+) -> bool:
+
+	var world: Dictionary = save_data[
+		"world"
+	]
+
+
+	var unlocked_areas: Array = world[
+		"unlocked_areas"
+	]
+
+
+	return unlocked_areas.has(
+		area_name
+	)
 
 
 # ============================================================
@@ -308,29 +590,49 @@ func get_player_upgrade(
 	upgrade_name: String
 ) -> int:
 
-	var player_id_string: String = str(player_id)
+	var player_id_string: String = str(
+		player_id
+	)
 
-	var players: Dictionary = save_data["players"]
 
-	if not players.has(player_id_string):
+	var players: Dictionary = save_data[
+		"players"
+	]
+
+
+	if not players.has(
+		player_id_string
+	):
+
 		return 0
 
-	var player_data: Variant = players[player_id_string]
+
+	var player_data: Variant = players[
+		player_id_string
+	]
+
 
 	if typeof(player_data) != TYPE_DICTIONARY:
+
 		return 0
 
+
 	var player_dictionary: Dictionary = player_data
+
 
 	var upgrades: Variant = player_dictionary.get(
 		"upgrades",
 		{}
 	)
 
+
 	if typeof(upgrades) != TYPE_DICTIONARY:
+
 		return 0
 
+
 	var upgrade_dictionary: Dictionary = upgrades
+
 
 	return int(
 		upgrade_dictionary.get(
@@ -346,51 +648,83 @@ func set_player_upgrade(
 	level: int
 ) -> void:
 
-	var player_id_string: String = str(player_id)
+	var player_id_string: String = str(
+		player_id
+	)
 
-	var players: Dictionary = save_data["players"]
 
-	if not players.has(player_id_string):
+	var players: Dictionary = save_data[
+		"players"
+	]
+
+
+	if not players.has(
+		player_id_string
+	):
+
 		players[player_id_string] = {
 			"money": 0,
 			"upgrades": {}
 		}
 
-	var player_data: Variant = players[player_id_string]
+
+	var player_data: Variant = players[
+		player_id_string
+	]
+
 
 	if typeof(player_data) != TYPE_DICTIONARY:
+
 		player_data = {
 			"money": 0,
 			"upgrades": {}
 		}
 
+
 	var player_dictionary: Dictionary = player_data
 
-	if not player_dictionary.has("upgrades"):
+
+	if not player_dictionary.has(
+		"upgrades"
+	):
+
 		player_dictionary["upgrades"] = {}
 
-	var upgrades_variant: Variant = player_dictionary["upgrades"]
+
+	var upgrades_variant: Variant = (
+		player_dictionary["upgrades"]
+	)
+
 
 	if typeof(upgrades_variant) != TYPE_DICTIONARY:
+
 		upgrades_variant = {}
 
+
 	var upgrades: Dictionary = upgrades_variant
+
 
 	upgrades[upgrade_name] = maxi(
 		level,
 		0
 	)
 
+
 	player_dictionary["upgrades"] = upgrades
 
-	players[player_id_string] = player_dictionary
+	players[player_id_string] = (
+		player_dictionary
+	)
 
 
 func get_player_upgrade_level(
 	upgrade_name: String
 ) -> int:
 
-	var player_id: int = get_local_player_id()
+	var player_id: int = (
+		get_local_player_id()
+	)
+
 
 	return get_player_upgrade(
 		player_id,

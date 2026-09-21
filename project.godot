@@ -8,12 +8,20 @@
 
 config_version=5
 
+[accessibility]
+
+general/accessibility_support=2
+
 [application]
 
 config/name="DEADWEIGHT"
-config/version="0.1"
+config/name_localized={
+"ja_JP": "デードウェイット"
+}
+config/version="0.1.1"
 run/main_scene="uid://bqj4f3i70dhdc"
 config/custom_user_dir_name="DEADWEIGHT"
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.01708517, 1.2595968e-05, 0.04089781, 1)
 boot_splash/show_image=false
@@ -51,6 +59,7 @@ folder_colors={
 
 Grabbable=""
 Interactable=""
+SellableObject=""
 
 [input]
 
@@ -139,6 +148,9 @@ limits/message_queue/max_size_mb=64
 3d/run_on_separate_thread=true
 common/physics_ticks_per_second=120
 3d/physics_engine="Jolt Physics"
+jolt_physics_3d/simulation/velocity_steps=12
+jolt_physics_3d/simulation/position_steps=6
+jolt_physics_3d/limits/temporary_memory_buffer_size=128
 common/physics_interpolation=true
 
 [rendering]

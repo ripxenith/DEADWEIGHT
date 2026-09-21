@@ -37,7 +37,7 @@ properties/5/path = NodePath(".:angular_velocity")
 properties/5/spawn = true
 properties/5/replication_mode = 1
 
-[node name="Barrel" type="RigidBody3D" unique_id=2108653769 groups=["Grabbable"]]
+[node name="Barrel" type="RigidBody3D" unique_id=2108653769 groups=["Grabbable", "SellableItem"]]
 mass = 15.0
 script = ExtResource("1_nlbrl")
 object_definition = SubResource("Resource_gde2f")

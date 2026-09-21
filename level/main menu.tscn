@@ -153,6 +153,7 @@ text = "deadweight"
 label_settings = SubResource("LabelSettings_hotrt")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="menu ui" unique_id=941610]
+visible = false
 layout_mode = 0
 offset_left = 85.0
 offset_top = 200.0
@@ -213,7 +214,6 @@ horizontal_alignment = 2
 vertical_alignment = 2
 
 [node name="SettingsMenu" type="Panel" parent="menu ui" unique_id=659264973]
-visible = false
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
