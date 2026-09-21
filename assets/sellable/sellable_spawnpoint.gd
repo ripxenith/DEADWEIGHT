@@ -1,153 +1,129 @@
 extends Marker3D
 class_name Sellable_Spawnpoint
 
-
 @export_category("Spawn Settings")
-
 @export var possible_items: Array[PackedScene] = []
 
-
-var spawned_item: Node3D = null
+var spawned_item: SellableObject = null
+var spawned_scene_path: String = ""
 
 
 func _ready() -> void:
-	add_to_group("SellableSpawnpoints")
+	add_to_group("NetworkSpawnpoints")
 
-	# Only the host creates the initial objects.
-	if multiplayer.has_multiplayer_peer():
-		if not multiplayer.is_server():
-			return
+	# Only the host spawns items.
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		return
 
 	call_deferred("spawn_item")
 
 
+# ============================================================
+# HOST SPAWN
+# ============================================================
+
 func spawn_item() -> void:
-	if not multiplayer.is_server():
-		return
-
-	if possible_items.is_empty():
-		push_warning(
-			"Sellable_Spawnpoint has no possible items: "
-			+ str(get_path())
-		)
-		return
-
 	if is_instance_valid(spawned_item):
 		return
 
 	var valid_items: Array[PackedScene] = []
 
-	for item_scene in possible_items:
-		if item_scene != null:
-			valid_items.append(item_scene)
+	for s in possible_items:
+		if s != null:
+			valid_items.append(s)
 
 	if valid_items.is_empty():
 		push_warning(
-			"Sellable_Spawnpoint has no valid item scenes: "
+			"Sellable_Spawnpoint has no valid items: "
 			+ str(get_path())
 		)
 		return
 
-	# --------------------------------------------------------
-	# HOST CHOOSES THE ITEM
-	# --------------------------------------------------------
+	var item_scene: PackedScene = valid_items[
+		randi_range(0, valid_items.size() - 1)
+	]
 
-	var random_index: int = randi_range(
-		0,
-		valid_items.size() - 1
-	)
-
-	var item_scene: PackedScene = (
-		valid_items[random_index]
-	)
-
-	# --------------------------------------------------------
-	# CREATE ITEM ON HOST
-	# --------------------------------------------------------
-
-	var new_item: Node = (
-		item_scene.instantiate()
-	)
-
-	if new_item == null:
-		push_warning(
-			"Failed to instantiate item at: "
-			+ str(get_path())
-		)
-		return
-
-	var sellable := new_item as SellableObject
+	var sellable := item_scene.instantiate() as SellableObject
 
 	if sellable == null:
 		push_warning(
-			"Spawned scene is not a SellableObject: "
+			"Scene is not a SellableObject: "
 			+ item_scene.resource_path
 		)
-
-		new_item.queue_free()
 		return
 
-	# Server is peer 1 and therefore the authority.
-	sellable.set_multiplayer_authority(1)
+	# Keep the synchronizer private until the client
+	# confirms that it has created the item.
+	var sync := sellable.get_node_or_null(
+		"MultiplayerSynchronizer"
+	) as MultiplayerSynchronizer
 
-	# Add it to the world.
-	get_parent().add_child(
-		sellable,
-		true
-	)
+	if sync:
+		sync.public_visibility = false
+
+	# Keep the item's original scene name.
+	add_child(sellable)
 
 	sellable.global_transform = global_transform
+	sellable.set_multiplayer_authority(1)
 
-	# --------------------------------------------------------
-	# GENERATE RANDOM DATA ONCE
-	# --------------------------------------------------------
-
+	# Generate rarity/value exactly once on the host.
 	sellable.generate_value()
 
-	var generated_rarity: String = (
-		sellable.rarity
-	)
-
-	var generated_value: int = (
-		sellable.sell_value
-	)
-
-	# --------------------------------------------------------
-	# TRACK HOST COPY
-	# --------------------------------------------------------
-
 	spawned_item = sellable
+	spawned_scene_path = item_scene.resource_path
 
 	spawned_item.tree_exited.connect(
 		_on_spawned_item_removed
 	)
 
-	# --------------------------------------------------------
-	# TELL CLIENTS TO CREATE THE SAME OBJECT
-	# --------------------------------------------------------
-
-	spawn_sellable.rpc(
-		item_scene.resource_path,
-		global_transform,
-		generated_rarity,
-		generated_value
-	)
-
 	print(
 		"SPAWNED SELLABLE: ",
-		item_scene.resource_path,
+		spawned_scene_path,
 		" | ",
-		generated_rarity,
+		sellable.name,
+		" | ",
+		sellable.rarity,
 		" | $",
-		generated_value
+		sellable.sell_value,
+		" | ",
+		sellable.get_path()
+	)
+
+	# Send to peers that are already connected.
+	if multiplayer.has_multiplayer_peer():
+		for peer_id in multiplayer.get_peers():
+			send_existing_to_peer(peer_id)
+
+
+# ============================================================
+# SEND TO CLIENT
+# ============================================================
+
+func send_existing_to_peer(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if not is_instance_valid(spawned_item):
+		return
+
+	if spawned_scene_path.is_empty():
+		return
+
+	spawn_sellable.rpc_id(
+		peer_id,
+		spawned_scene_path,
+		spawned_item.global_transform,
+		spawned_item.rarity,
+		spawned_item.sell_value
 	)
 
 
-@rpc(
-	"authority",
-	"call_remote",
-	"reliable"
-)
+# ============================================================
+# CLIENT SPAWN
+# ============================================================
+
+@rpc("authority", "call_remote", "reliable")
 func spawn_sellable(
 	scene_path: String,
 	item_transform: Transform3D,
@@ -155,86 +131,96 @@ func spawn_sellable(
 	item_value: int
 ) -> void:
 
-	# Host already created its own copy.
 	if multiplayer.is_server():
 		return
 
-	# --------------------------------------------------------
-	# PREVENT DUPLICATES
-	# --------------------------------------------------------
-
 	if is_instance_valid(spawned_item):
+		_client_has_sellable.rpc_id(1)
 		return
 
-	# --------------------------------------------------------
-	# LOAD THE EXACT SAME SCENE
-	# --------------------------------------------------------
-
-	var item_scene: PackedScene = (
-		load(scene_path) as PackedScene
-	)
+	var item_scene := load(scene_path) as PackedScene
 
 	if item_scene == null:
 		push_warning(
-			"Could not load networked sellable: "
+			"CLIENT: Failed to load sellable: "
 			+ scene_path
 		)
 		return
 
-	var new_item: Node = (
-		item_scene.instantiate()
-	)
-
-	if new_item == null:
-		push_warning(
-			"Failed to instantiate networked sellable."
-		)
-		return
-
-	var sellable := new_item as SellableObject
+	var sellable := item_scene.instantiate() as SellableObject
 
 	if sellable == null:
 		push_warning(
-			"Networked scene is not a SellableObject: "
+			"CLIENT: Scene is not a SellableObject: "
 			+ scene_path
 		)
-
-		new_item.queue_free()
 		return
 
-	# --------------------------------------------------------
-	# ADD TO WORLD
-	# --------------------------------------------------------
-
-	get_parent().add_child(
-		sellable,
-		true
-	)
-
-	# --------------------------------------------------------
-	# USE HOST-GENERATED DATA
-	# --------------------------------------------------------
-
-	sellable.rarity = item_rarity
-	sellable.sell_value = item_value
+	# Keep the item's original scene name.
+	add_child(sellable)
 
 	sellable.global_transform = item_transform
 
+	# Use the values generated by the host.
+	sellable.rarity = item_rarity
+	sellable.sell_value = item_value
+
+	# Client does not simulate physics.
+	sellable.set_multiplayer_authority(1)
+	sellable.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	sellable.freeze = true
+
 	spawned_item = sellable
+	spawned_scene_path = scene_path
 
 	spawned_item.tree_exited.connect(
 		_on_spawned_item_removed
 	)
 
 	print(
-		"RECEIVED NETWORKED SELLABLE: ",
+		"CLIENT RECEIVED SELLABLE: ",
 		scene_path,
+		" | ",
+		sellable.name,
 		" | ",
 		item_rarity,
 		" | $",
-		item_value
+		item_value,
+		" | ",
+		sellable.get_path()
 	)
 
+	# Tell the host the client has created the item.
+	_client_has_sellable.rpc_id(1)
+
+
+# ============================================================
+# CLIENT ACKNOWLEDGEMENT
+# ============================================================
+
+@rpc("any_peer", "call_remote", "reliable")
+func _client_has_sellable() -> void:
+	if not multiplayer.is_server():
+		return
+
+	if not is_instance_valid(spawned_item):
+		return
+
+	var sync := spawned_item.get_node_or_null(
+		"MultiplayerSynchronizer"
+	) as MultiplayerSynchronizer
+
+	if sync:
+		sync.set_visibility_for(
+			multiplayer.get_remote_sender_id(),
+			true
+		)
+
+
+# ============================================================
+# CLEANUP
+# ============================================================
 
 func _on_spawned_item_removed() -> void:
 	spawned_item = null
+	spawned_scene_path = ""

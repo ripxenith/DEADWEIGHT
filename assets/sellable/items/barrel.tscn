@@ -2,33 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/sellable_object.gd" id="1_nlbrl"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_invjh"]
-[ext_resource type="Script" uid="uid://dut3ybyur25xo" path="res://script/object_definition.gd" id="2_jlghd"]
 [ext_resource type="Texture2D" uid="uid://cj68lurdyex41" path="res://assets/texture/prototypes/dark/texture_05.png" id="3_invjh"]
-
-[sub_resource type="Resource" id="Resource_gde2f"]
-script = ExtResource("2_jlghd")
-object_name = "Barrel"
-metadata/_custom_type_script = "uid://dut3ybyur25xo"
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jlghd"]
-properties/0/path = NodePath("Crate:rotation")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath("Crate:rarity")
-properties/1/spawn = true
-properties/1/replication_mode = 1
-properties/2/path = NodePath("Crate:sell_value")
-properties/2/spawn = true
-properties/2/replication_mode = 1
-properties/3/path = NodePath("SellableObject:linear_velocity")
-properties/3/spawn = true
-properties/3/replication_mode = 1
-properties/4/path = NodePath("SellableObject:angular_velocity")
-properties/4/spawn = true
-properties/4/replication_mode = 1
-properties/5/path = NodePath("Barrel:position")
-properties/5/spawn = true
-properties/5/replication_mode = 1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jlghd"]
 albedo_texture = ExtResource("3_invjh")
@@ -37,10 +11,29 @@ albedo_texture = ExtResource("3_invjh")
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_8rp5v"]
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jlghd"]
+properties/0/path = NodePath(".:rarity")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:sell_value")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:position")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:rotation")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:linear_velocity")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath(".:angular_velocity")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+
 [node name="Barrel" type="RigidBody3D" unique_id=2108653769 groups=["Grabbable"]]
 mass = 15.0
 script = ExtResource("1_nlbrl")
-object_definition = SubResource("Resource_gde2f")
 metadata/_custom_type_script = "uid://ww3racfx668m"
 
 [node name="price" type="Label3D" parent="." unique_id=1962625682]
@@ -52,14 +45,14 @@ no_depth_test = true
 text = "$000"
 font = ExtResource("2_invjh")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1540767966]
-process_mode = 3
-root_path = NodePath("../..")
-replication_config = SubResource("SceneReplicationConfig_jlghd")
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1217560360]
 material_override = SubResource("StandardMaterial3D_jlghd")
 mesh = SubResource("CylinderMesh_gde2f")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=152602283]
 shape = SubResource("CylinderShape3D_8rp5v")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1540767966]
+process_mode = 3
+replication_config = SubResource("SceneReplicationConfig_jlghd")
+public_visibility = false

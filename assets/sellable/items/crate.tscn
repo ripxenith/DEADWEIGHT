@@ -1,14 +1,8 @@
 [gd_scene format=3 uid="uid://cvpk5e5io237d"]
 
-[ext_resource type="Script" uid="uid://dut3ybyur25xo" path="res://script/object_definition.gd" id="2_7tnr7"]
 [ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/sellable_object.gd" id="2_cmx3m"]
 [ext_resource type="Texture2D" uid="uid://gfkb25dintn4" path="res://assets/texture/prototypes/dark/texture_04.png" id="3_7tnr7"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="4_q5fg5"]
-
-[sub_resource type="Resource" id="Resource_wtrs5"]
-script = ExtResource("2_7tnr7")
-object_name = "Crate"
-metadata/_custom_type_script = "uid://dut3ybyur25xo"
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bi6nq"]
 
@@ -18,29 +12,28 @@ albedo_texture = ExtResource("3_7tnr7")
 [sub_resource type="BoxMesh" id="BoxMesh_qoch3"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_bi6nq"]
-properties/0/path = NodePath("Crate:position")
+properties/0/path = NodePath(".:rarity")
 properties/0/spawn = true
 properties/0/replication_mode = 1
-properties/1/path = NodePath("Crate:rotation")
+properties/1/path = NodePath(".:sell_value")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath("Crate:rarity")
+properties/2/path = NodePath(".:position")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("Crate:sell_value")
+properties/3/path = NodePath(".:rotation")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath("SellableObject:linear_velocity")
+properties/4/path = NodePath(".:linear_velocity")
 properties/4/spawn = true
 properties/4/replication_mode = 1
-properties/5/path = NodePath("SellableObject:angular_velocity")
+properties/5/path = NodePath(".:angular_velocity")
 properties/5/spawn = true
 properties/5/replication_mode = 1
 
-[node name="SellableObject" type="RigidBody3D" unique_id=1089639337 groups=["Grabbable"]]
+[node name="Crate" type="RigidBody3D" unique_id=1089639337 groups=["Grabbable"]]
 mass = 10.0
 script = ExtResource("2_cmx3m")
-object_definition = SubResource("Resource_wtrs5")
 
 [node name="price" type="Label3D" parent="." unique_id=335015690]
 visibility_range_end = 3.0
@@ -60,5 +53,5 @@ mesh = SubResource("BoxMesh_qoch3")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=548055090]
 process_mode = 3
-root_path = NodePath("../..")
 replication_config = SubResource("SceneReplicationConfig_bi6nq")
+public_visibility = false

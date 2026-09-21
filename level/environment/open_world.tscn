@@ -24,6 +24,7 @@ ambient_light_energy = 0.0
 reflected_light_source = 1
 tonemap_mode = 3
 ssr_enabled = true
+ssr_depth_tolerance = 5.01
 ssao_enabled = true
 ssil_enabled = true
 glow_enabled = true
@@ -31,6 +32,10 @@ glow_normalized = true
 glow_intensity = 0.25
 glow_strength = 0.5
 glow_bloom = 0.08
+adjustment_enabled = true
+adjustment_brightness = 0.75
+adjustment_contrast = 1.11
+adjustment_saturation = 1.1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gxfw8"]
 render_priority = 0
@@ -222,13 +227,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, -1, -26.099998)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -6, -13)
 
 [node name="Sellable_Spawnpoint" type="Marker3D" parent="." unique_id=36958093]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.19999999, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -33.4)
 script = ExtResource("8_ug8wy")
 possible_items = Array[PackedScene]([ExtResource("1_bb2yp"), ExtResource("10_jqw3q")])
 metadata/_custom_type_script = "uid://vx53fdkmq7l0"
 
 [node name="Sellable_Spawnpoint2" type="Marker3D" parent="." unique_id=1562097873]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 43, -0.19999999, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 43, 0, -33.4)
 script = ExtResource("8_ug8wy")
 possible_items = Array[PackedScene]([ExtResource("1_bb2yp"), ExtResource("10_jqw3q")])
 metadata/_custom_type_script = "uid://vx53fdkmq7l0"

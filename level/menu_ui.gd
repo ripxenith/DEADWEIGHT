@@ -43,6 +43,7 @@ func _on_host_game_pressed() -> void:
 
 func _on_join_game_pressed() -> void:
 	print_debug("Join Game is handled through Steam invites.")
+	Network.join_local_game()
 
 
 func _on_invite_button_pressed() -> void:
@@ -343,59 +344,59 @@ $updateLog = "%s"
 
 function Write-Log($message) {
     Add-Content -Path $updateLog -Value (
-        ("[" + (Get-Date -Format "yyyy-MM-dd HH:mm:ss") + "] " + $message)
+		("[" + (Get-Date -Format "yyyy-MM-dd HH:mm:ss") + "] " + $message)
     )
 }
 
 try {
-    Write-Log "========================================"
-    Write-Log "DEADWEIGHT updater started"
-    Write-Log "Download URL: $downloadUrl"
-    Write-Log "Game directory: $gameDirectory"
-    Write-Log "Game executable: $gameExecutable"
+	Write-Log "========================================"
+	Write-Log "DEADWEIGHT updater started"
+	Write-Log "Download URL: $downloadUrl"
+	Write-Log "Game directory: $gameDirectory"
+	Write-Log "Game executable: $gameExecutable"
 
-    $tempFile = Join-Path $env:TEMP "DEADWEIGHT_update.zip"
+	$tempFile = Join-Path $env:TEMP "DEADWEIGHT_update.zip"
 
-    Write-Log "Downloading update..."
+	Write-Log "Downloading update..."
 
     Invoke-WebRequest `
         -Uri $downloadUrl `
         -OutFile $tempFile `
         -UseBasicParsing
 
-    Write-Log "Download complete."
+	Write-Log "Download complete."
 
     if (!(Test-Path $tempFile)) {
-        throw "Downloaded ZIP file does not exist."
+		throw "Downloaded ZIP file does not exist."
     }
 
-    Write-Log "Waiting for DEADWEIGHT processes to close..."
+	Write-Log "Waiting for DEADWEIGHT processes to close..."
 
     # Wait for both Godot executables to completely exit.
     for ($i = 0; $i -lt 60; $i++) {
 
-        $gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
-        $consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
+		$gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
+		$consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
 
         if ($null -eq $gameProcess -and $null -eq $consoleProcess) {
-            Write-Log "All DEADWEIGHT processes have closed."
+			Write-Log "All DEADWEIGHT processes have closed."
             break
         }
 
-        Write-Log "DEADWEIGHT is still running. Waiting..."
+		Write-Log "DEADWEIGHT is still running. Waiting..."
 
         Start-Sleep -Milliseconds 500
     }
 
     # Make absolutely sure the processes are gone.
-    $gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
-    $consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
+	$gameProcess = Get-Process -Name "DEADWEIGHT" -ErrorAction SilentlyContinue
+	$consoleProcess = Get-Process -Name "DEADWEIGHT.console" -ErrorAction SilentlyContinue
 
     if ($null -ne $gameProcess -or $null -ne $consoleProcess) {
-        throw "DEADWEIGHT is still running after waiting 30 seconds."
+		throw "DEADWEIGHT is still running after waiting 30 seconds."
     }
 
-    Write-Log "Extracting update..."
+	Write-Log "Extracting update..."
 
     # Retry extraction several times in case Windows is still releasing a file.
     $extracted = $false
@@ -403,7 +404,7 @@ try {
     for ($attempt = 1; $attempt -le 10; $attempt++) {
 
         try {
-            Write-Log "Extraction attempt $attempt..."
+			Write-Log "Extraction attempt $attempt..."
 
             Expand-Archive `
                 -Path $tempFile `
@@ -411,11 +412,11 @@ try {
                 -Force
 
             $extracted = $true
-            Write-Log "Extraction successful."
+			Write-Log "Extraction successful."
             break
         }
         catch {
-            Write-Log "Extraction attempt $attempt failed: $($_.Exception.Message)"
+			Write-Log "Extraction attempt $attempt failed: $($_.Exception.Message)"
 
             if ($attempt -lt 10) {
                 Start-Sleep -Seconds 1
@@ -424,21 +425,21 @@ try {
     }
 
     if (!$extracted) {
-        throw "Failed to extract update after 10 attempts."
+		throw "Failed to extract update after 10 attempts."
     }
 
     Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
 
-    Write-Log "Starting updated game..."
+	Write-Log "Starting updated game..."
 
     Start-Process -FilePath $gameExecutable
 
-    Write-Log "Update completed successfully."
+	Write-Log "Update completed successfully."
 
 }
 catch {
-    Write-Log "========================================"
-    Write-Log "UPDATE FAILED"
+	Write-Log "========================================"
+	Write-Log "UPDATE FAILED"
     Write-Log $_.Exception.Message
     Write-Log $_.ScriptStackTrace
 }

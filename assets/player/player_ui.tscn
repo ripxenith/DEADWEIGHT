@@ -8,8 +8,29 @@
 [ext_resource type="Texture2D" uid="uid://8qmiqbkbbvtw" path="res://assets/ui/crosshair.png" id="4_n7ygu"]
 [ext_resource type="Script" uid="uid://q3y50d1vc6e1" path="res://assets/player/pause_menu.gd" id="6_75r6w"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tp50g"]
+bg_color = Color(0, 0.6, 0.16999999, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_75r6w"]
+bg_color = Color(0, 0.6411304, 0.9329892, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [node name="PlayerUI" type="CanvasLayer" unique_id=1894593199]
 script = ExtResource("1_ndm4a")
+
+[node name="HUDTexture" type="TextureRect" parent="." unique_id=1910355087]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="GrabUI" type="TextureRect" parent="." unique_id=1017932733]
 visible = false
@@ -22,10 +43,10 @@ size_flags_vertical = 0
 texture = ExtResource("2_ndm4a")
 
 [node name="FPS" type="Label" parent="." unique_id=1585240937]
-offset_left = 17.0
-offset_top = 16.0
-offset_right = 211.0
-offset_bottom = 39.0
+offset_left = 9.0
+offset_top = 512.0
+offset_right = 203.0
+offset_bottom = 535.0
 size_flags_horizontal = 0
 theme = ExtResource("1_dtcvl")
 theme_override_fonts/font = ExtResource("2_yjs2o")
@@ -33,26 +54,18 @@ text = "FPS: "
 script = ExtResource("1_1np0y")
 
 [node name="DebugInfo" type="Label" parent="." unique_id=1543017075]
-offset_left = 17.0
-offset_top = 40.0
-offset_right = 211.0
-offset_bottom = 63.0
+offset_left = 9.0
+offset_top = 536.0
+offset_right = 203.0
+offset_bottom = 559.0
 size_flags_horizontal = 0
 theme = ExtResource("1_dtcvl")
 theme_override_fonts/font = ExtResource("2_yjs2o")
-text = "DEBUG: "
-
-[node name="DebugInfo2" type="Label" parent="." unique_id=1472087746]
-offset_left = 937.0
-offset_top = 16.0
-offset_right = 1131.0
-offset_bottom = 39.0
-size_flags_horizontal = 8
-theme = ExtResource("1_dtcvl")
-theme_override_colors/font_color = Color(0.96, 0.832, 0, 1)
-theme_override_fonts/font = ExtResource("2_yjs2o")
-text = "$1,337"
-horizontal_alignment = 2
+text = "POS:
+VEL:
+SPEED:
+HP:
+OXYGEN:"
 
 [node name="UIContainer" type="MarginContainer" parent="." unique_id=339930667]
 anchors_preset = 15
@@ -96,6 +109,7 @@ theme_override_constants/separation = 10
 alignment = 1
 
 [node name="ResumeBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=67314790]
+visible = false
 layout_mode = 2
 text = "RESUME"
 
@@ -185,39 +199,97 @@ text = "[F] Interact"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CornerUI" type="Control" parent="UIContainer" unique_id=637000383]
+[node name="HUD" type="Control" parent="UIContainer" unique_id=637000383]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/CornerUI" unique_id=1421295291]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -141.0
-offset_right = 143.0
-offset_bottom = -16.0
-grow_vertical = 0
+[node name="MoneyLabel" type="Label" parent="UIContainer/HUD" unique_id=1472087746]
+layout_mode = 0
+offset_left = 937.0
+offset_top = 16.0
+offset_right = 1131.0
+offset_bottom = 39.0
+size_flags_horizontal = 8
 theme = ExtResource("1_dtcvl")
-theme_override_constants/separation = 11
+theme_override_colors/font_color = Color(0.96, 0.832, 0, 1)
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "₡1,000"
+horizontal_alignment = 2
 
-[node name="StaminaLabel" type="Label" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1599162370]
-layout_mode = 2
+[node name="StaminaLabel" type="Label" parent="UIContainer/HUD" unique_id=1599162370]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 80.0
+offset_right = 143.0
+offset_bottom = 99.0
 theme_override_fonts/font = ExtResource("2_yjs2o")
 text = "STAMINA"
 
-[node name="StaminaBar" type="ProgressBar" parent="UIContainer/CornerUI/VBoxContainer" unique_id=197735288]
-layout_mode = 2
+[node name="StaminaBar" type="ProgressBar" parent="UIContainer/HUD" unique_id=197735288]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 110.0
+offset_right = 143.0
+offset_bottom = 137.0
+theme = ExtResource("1_dtcvl")
 rounded = true
 
-[node name="ThrusterLabel" type="Label" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1761204418]
-layout_mode = 2
+[node name="ThrusterLabel" type="Label" parent="UIContainer/HUD" unique_id=1761204418]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 80.0
+offset_right = 143.0
+offset_bottom = 99.0
 theme_override_fonts/font = ExtResource("2_yjs2o")
 text = "THRUSTERS"
 
-[node name="ThrusterBar" type="ProgressBar" parent="UIContainer/CornerUI/VBoxContainer" unique_id=1590163773]
+[node name="ThrusterBar" type="ProgressBar" parent="UIContainer/HUD" unique_id=1590163773]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 110.0
+offset_right = 143.0
+offset_bottom = 137.0
+theme = ExtResource("1_dtcvl")
+rounded = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/HUD" unique_id=1421295291]
+layout_mode = 1
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 143.0
+offset_bottom = 141.0
+theme = ExtResource("1_dtcvl")
+theme_override_constants/separation = 11
+
+[node name="HealthLabel" type="Label" parent="UIContainer/HUD/VBoxContainer" unique_id=1239390591]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "HEALTH"
+
+[node name="HealthBar" type="ProgressBar" parent="UIContainer/HUD/VBoxContainer" unique_id=222746039]
+layout_mode = 2
+theme = ExtResource("1_dtcvl")
+theme_override_styles/fill = SubResource("StyleBoxFlat_tp50g")
+rounded = true
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/HUD" unique_id=377269711]
+layout_mode = 1
+offset_left = 16.0
+offset_top = 144.0
+offset_right = 143.0
+offset_bottom = 269.0
+theme = ExtResource("1_dtcvl")
+theme_override_constants/separation = -14
+
+[node name="OxygenLabel" type="Label" parent="UIContainer/HUD/VBoxContainer2" unique_id=794611141]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "OXYGEN
+"
+
+[node name="OxygenBar" type="ProgressBar" parent="UIContainer/HUD/VBoxContainer2" unique_id=330179381]
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_75r6w")
 rounded = true
 
 [connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/ResumeBtn" to="UIContainer/PauseMenu" method="_on_resume_btn_pressed"]

@@ -14,8 +14,8 @@ func _process(delta: float) -> void:
 
 func _on_resume_btn_pressed() -> void:
 		pause_menu.hide()
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		get_viewport().gui_release_focus()
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 
 func _on_settings_btn_pressed() -> void:

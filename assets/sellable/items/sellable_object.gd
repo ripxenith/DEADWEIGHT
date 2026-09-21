@@ -4,7 +4,6 @@ class_name SellableObject
 
 @export var object_definition: ObjectDefinition
 
-
 @onready var price_label: Label3D = $price
 
 
@@ -47,19 +46,68 @@ func _ready() -> void:
 		object_definition
 	)
 
-	# Only the server generates random item data.
-	if multiplayer.is_server():
-		if rarity == "Common" and sell_value == 0:
-			generate_value()
+	print(
+		"SELLABLE AUTHORITY DEBUG | ",
+		name,
+		" | peer = ",
+		multiplayer.get_unique_id(),
+		" | authority = ",
+		get_multiplayer_authority(),
+		" | is authority = ",
+		is_multiplayer_authority()
+	)
 
-	call_deferred("update_price_display")
+	# --------------------------------------------------------
+	# IMPORTANT:
+	# DO NOT generate the item here.
+	#
+	# Sellable_Spawnpoint generates it exactly once.
+	# --------------------------------------------------------
 
+	# Only the authority simulates the rigidbody.
+	if not is_multiplayer_authority():
+		freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+		freeze = true
+
+	var synchronizer := get_node_or_null(
+		"MultiplayerSynchronizer"
+	)
+
+	if synchronizer:
+		print(
+			"SELLABLE SYNC DEBUG | ",
+			name,
+			" | root_path = ",
+			synchronizer.root_path,
+			" | public_visibility = ",
+			synchronizer.public_visibility
+		)
+
+		if synchronizer.replication_config:
+			print(
+				"SELLABLE SYNC DEBUG | Properties = ",
+				synchronizer.replication_config.get_properties()
+			)
+	else:
+		print(
+			"SELLABLE SYNC ERROR | NO MULTIPLAYER SYNCHRONIZER FOUND | ",
+			get_path()
+		)
+
+	call_deferred(
+		"update_price_display"
+	)
+
+
+# ============================================================
+# GENERATE VALUE
+# ============================================================
 
 func generate_value() -> void:
 	if object_definition == null:
 		print(
-			"SELLABLE OBJ ERROR: "
-			+ "object_definition is NULL"
+			"SELLABLE OBJ ERROR: object_definition is NULL | ",
+			get_path()
 		)
 		return
 
@@ -78,6 +126,10 @@ func generate_value() -> void:
 	)
 
 
+# ============================================================
+# PRICE DISPLAY
+# ============================================================
+
 func update_price_display() -> void:
 	if price_label == null:
 		return
@@ -94,7 +146,6 @@ func get_rarity_color(
 ) -> Color:
 
 	match rarity_name:
-
 		"Common":
 			return Color.WHITE
 
@@ -113,6 +164,10 @@ func get_rarity_color(
 		_:
 			return Color.WHITE
 
+
+# ============================================================
+# ZERO GRAVITY
+# ============================================================
 
 func set_zero_gravity(
 	enabled: bool

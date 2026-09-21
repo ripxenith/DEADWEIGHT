@@ -13,6 +13,7 @@ config_version=5
 config/name="DEADWEIGHT"
 config/version="0.1"
 run/main_scene="uid://bqj4f3i70dhdc"
+config/custom_user_dir_name="DEADWEIGHT"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.01708517, 1.2595968e-05, 0.04089781, 1)
 boot_splash/show_image=false
@@ -24,9 +25,12 @@ Network="*uid://b0opn5i08s3a1"
 TileRunInstancesGlobal="*uid://b6fg6pu2bfi14"
 CyclopsAutoload="*uid://4siqre3jhe80"
 SteamManager="*uid://c8ex7vu4mplc3"
+SaveManager="*uid://c0vbwr5ikb3ba"
 
 [display]
 
+window/size/extend_to_title=true
+window/subwindows/embed_subwindows=false
 window/stretch/mode="viewport"
 window/vsync/vsync_mode=0
 
@@ -141,5 +145,6 @@ common/physics_interpolation=true
 
 textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
+gl_compatibility/nvidia_disable_threaded_optimization=false
 lights_and_shadows/directional_shadow/size=8192
 camera/depth_of_field/depth_of_field_bokeh_quality=2
