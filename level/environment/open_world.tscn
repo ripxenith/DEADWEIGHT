@@ -126,7 +126,7 @@ noise = SubResource("FastNoiseLite_ubhti")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yhp2s"]
 render_priority = 0
 shader = ExtResource("6_u4deq")
-shader_parameter/corona_color = Color(1, 0.35, 0.02, 1)
+shader_parameter/corona_color = Color(0.87666947, 0.48055708, 3.85046e-07, 1)
 shader_parameter/corona_strength = 21.675
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_7u2yt")
 
@@ -173,7 +173,7 @@ rings = 32
 material = SubResource("ShaderMaterial_66fw3")
 
 [node name="atmosphere" type="CSGSphere3D" parent="Background/sun" unique_id=687689385]
-transform = Transform3D(48, 0, 0, 0, 48, 0, 0, 0, 48, -1696.637, 24.456034, -24.660772)
+transform = Transform3D(47.25, 0, 0, 0, 47.25, 0, 0, 0, 47.25, -1696.637, 24.456034, -24.660772)
 layers = 524288
 radius = 100.0
 radial_segments = 32

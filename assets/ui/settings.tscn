@@ -76,7 +76,6 @@ text = "RESTORE DEFAULTS"
 alignment = 2
 
 [node name="CNT_Gameplay" type="ScrollContainer" parent="SettingsMenu" unique_id=1403307432]
-visible = false
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -113,6 +112,9 @@ text = "sensitivity | "
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 size_flags_vertical = 1
+
+[node name="LNE_Sensitivity" type="LineEdit" parent="SettingsMenu/CNT_Gameplay/MarginContainer/VBoxContainer/HBOX_Sensitivity" unique_id=112082919]
+layout_mode = 2
 
 [node name="CNT_Controls" type="ScrollContainer" parent="SettingsMenu" unique_id=669132138]
 visible = false
@@ -176,6 +178,7 @@ popup/item_2/text = "Windowed"
 popup/item_2/id = 2
 
 [node name="CNT_Audio" type="ScrollContainer" parent="SettingsMenu" unique_id=1867419016]
+visible = false
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0

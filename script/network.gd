@@ -19,7 +19,7 @@ enum NetworkMode {
 	STEAM
 }
 
-var network_mode: NetworkMode = NetworkMode.LOCAL
+var network_mode: NetworkMode = NetworkMode.STEAM
 
 
 # ============================================================

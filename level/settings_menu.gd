@@ -23,6 +23,19 @@ extends Panel
 
 
 # ============================================================
+# SETTINGS CONTROLS
+# ============================================================
+
+@onready var sld_sensitivity: HSlider = $CNT_Gameplay/MarginContainer/VBoxContainer/HBOX_Sensitivity/SLD_Sensitivity
+
+@onready var lne_sensitivity: LineEdit = $CNT_Gameplay/MarginContainer/VBoxContainer/HBOX_Sensitivity/LNE_Sensitivity
+
+@onready var optb_window: OptionButton = $CNT_Graphics/MarginContainer/VBoxContainer/HBOX_Window/OPTB_Window
+
+@onready var sld_master_volume: HSlider = $CNT_Audio/MarginContainer/VBoxContainer/HBOX_Sensitivity/SLD_MasterVolume
+
+
+# ============================================================
 # STATE
 # ============================================================
 
@@ -42,7 +55,111 @@ var current_tab: SettingsTab = SettingsTab.GAMEPLAY
 
 func _ready() -> void:
 	confirm.hide()
+
+	# Connect sensitivity controls.
+	sld_sensitivity.value_changed.connect(_on_sensitivity_slider_changed)
+	lne_sensitivity.text_submitted.connect(_on_sensitivity_text_submitted)
+	lne_sensitivity.focus_exited.connect(_on_sensitivity_focus_exited)
+
+	_load_settings_into_ui()
+
 	set_tab(SettingsTab.GAMEPLAY)
+
+
+# ============================================================
+# LOAD SETTINGS INTO UI
+# ============================================================
+
+func _load_settings_into_ui() -> void:
+	# Mouse sensitivity
+	var sensitivity := Settings.get_mouse_sensitivity()
+
+	sld_sensitivity.value = sensitivity
+	lne_sensitivity.text = _format_number(sensitivity)
+
+	# Master volume
+	sld_master_volume.value = Settings.get_master_volume()
+
+	# Window mode
+	_set_window_option(Settings.get_window_mode())
+
+
+# ============================================================
+# SENSITIVITY
+# ============================================================
+
+func _on_sensitivity_slider_changed(value: float) -> void:
+	lne_sensitivity.text = _format_number(value)
+
+
+func _on_sensitivity_text_submitted(_text: String) -> void:
+	_apply_sensitivity_text()
+
+
+func _on_sensitivity_focus_exited() -> void:
+	_apply_sensitivity_text()
+
+
+func _apply_sensitivity_text() -> void:
+	var text := lne_sensitivity.text.strip_edges()
+
+	# If the field is empty or invalid, restore the current slider value.
+	if text.is_empty() or not text.is_valid_float():
+		lne_sensitivity.text = _format_number(sld_sensitivity.value)
+		return
+
+	var sensitivity := text.to_float()
+
+	# Keep the typed value within the slider's configured range.
+	sensitivity = clamp(
+		sensitivity,
+		sld_sensitivity.min_value,
+		sld_sensitivity.max_value
+	)
+
+	sld_sensitivity.value = sensitivity
+	lne_sensitivity.text = _format_number(sensitivity)
+
+
+func _format_number(value: float) -> String:
+	# Show whole numbers without ".0".
+	if is_equal_approx(value, round(value)):
+		return str(int(round(value)))
+
+	return str(snapped(value, 0.01))
+
+
+# ============================================================
+# WINDOW MODE
+# ============================================================
+
+func _set_window_option(window_mode: int) -> void:
+	match window_mode:
+		DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+			optb_window.select(0)
+
+		DisplayServer.WINDOW_MODE_FULLSCREEN:
+			optb_window.select(1)
+
+		DisplayServer.WINDOW_MODE_WINDOWED:
+			optb_window.select(2)
+
+		_:
+			optb_window.select(2)
+
+
+func _get_selected_window_mode() -> int:
+	match optb_window.selected:
+		0:
+			return DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+
+		1:
+			return DisplayServer.WINDOW_MODE_FULLSCREEN
+
+		2:
+			return DisplayServer.WINDOW_MODE_WINDOWED
+
+	return DisplayServer.WINDOW_MODE_WINDOWED
 
 
 # ============================================================
@@ -52,13 +169,11 @@ func _ready() -> void:
 func set_tab(tab: SettingsTab) -> void:
 	current_tab = tab
 
-	# Hide every panel first.
 	gameplay.hide()
 	controls.hide()
 	graphics.hide()
 	audio.hide()
 
-	# Show the selected panel.
 	match tab:
 		SettingsTab.GAMEPLAY:
 			gameplay.show()
@@ -116,19 +231,9 @@ func _on_btn_no_pressed() -> void:
 
 func _on_btn_yes_pressed() -> void:
 	confirm.hide()
-	restore_defaults()
 
-
-func restore_defaults() -> void:
-	# Reset settings here.
-	#
-	# Example:
-	# graphics_quality = DEFAULT_GRAPHICS_QUALITY
-	# master_volume = DEFAULT_MASTER_VOLUME
-	# mouse_sensitivity = DEFAULT_MOUSE_SENSITIVITY
-	#
-	# Then update the UI controls.
-	pass
+	Settings.restore_defaults()
+	_load_settings_into_ui()
 
 
 # ============================================================
@@ -136,10 +241,16 @@ func restore_defaults() -> void:
 # ============================================================
 
 func _on_btn_apply_pressed() -> void:
+	# Make sure a manually typed sensitivity value is processed
+	# before saving.
+	_apply_sensitivity_text()
+
 	handle_gameplay()
 	handle_controls()
 	handle_graphics()
 	handle_audio()
+
+	Settings.save_settings()
 
 
 # ============================================================
@@ -147,7 +258,9 @@ func _on_btn_apply_pressed() -> void:
 # ============================================================
 
 func handle_gameplay() -> void:
-	pass
+	Settings.set_mouse_sensitivity(
+		sld_sensitivity.value
+	)
 
 
 func handle_controls() -> void:
@@ -155,8 +268,22 @@ func handle_controls() -> void:
 
 
 func handle_graphics() -> void:
-	pass
+	var window_mode := _get_selected_window_mode()
+
+	Settings.set_window_mode(window_mode)
+
+	DisplayServer.window_set_mode(window_mode)
 
 
 func handle_audio() -> void:
-	pass
+	var volume := sld_master_volume.value
+
+	Settings.set_master_volume(volume)
+
+	# Apply to the Master audio bus.
+	var db := linear_to_db(volume)
+
+	AudioServer.set_bus_volume_db(
+		AudioServer.get_bus_index("Master"),
+		db
+	)

@@ -10,7 +10,7 @@ extends CharacterBody3D
 @export var jump_velocity := 4.5
 @export var gravity := 9.8
 
-var mouse_sensitivity := 0.00001
+var mouse_sensitivity := 0.00003
 @export var max_pitch := 89.0
 
 @export var crouch_camera_height := 1.0
@@ -1315,7 +1315,7 @@ func _process(_delta: float) -> void:
 	if not is_multiplayer_authority():
 		return
 
-	mouse_sensitivity = Settings.get_mouse_sensitivity() * 0.00001
+	mouse_sensitivity = Settings.get_mouse_sensitivity() * 0.00003
 
 	if controlling_ship:
 		return

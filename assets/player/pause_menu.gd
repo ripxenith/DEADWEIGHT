@@ -89,3 +89,13 @@ func _on_settings_back_pressed() -> void:
 
 	# We are still paused, so keep the mouse visible.
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func _on_quit_to_menu_btn_pressed() -> void:
+		get_tree().change_scene_to_file(
+		"res://level/main menu.tscn"
+		
+	)
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func _on_quit_game_btn_pressed() -> void:
+	get_tree().quit()
