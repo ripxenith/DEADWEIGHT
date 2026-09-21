@@ -1,6 +1,5 @@
 extends Node
 
-
 const PLAYER = preload("res://assets/player/player.tscn")
 
 const WORLD_SCENE := "res://level/environment/open_world.tscn"
@@ -33,34 +32,6 @@ var peer: MultiplayerPeer
 # UNIVERSAL PLAYER IDS
 # ============================================================
 
-# This is the important part of the network system.
-#
-# Key:
-#     Godot Multiplayer peer ID
-#
-# Value:
-#     Universal persistent player ID
-#
-#
-# LOCAL:
-#
-#     1 -> 90000000000000001
-#     2 -> 90000000000000002
-#     3 -> 90000000000000003
-#     4 -> 90000000000000004
-#
-#
-# STEAM:
-#
-#     1          -> Host's Steam ID
-#     1566542925 -> Client's Steam ID
-#
-#
-# Everything outside Network should use the VALUE.
-#
-# They do not need to know whether it is a Steam ID or a
-# local save ID.
-#
 var peer_ids: Dictionary = {}
 
 
@@ -68,10 +39,6 @@ var peer_ids: Dictionary = {}
 # LOCAL PLAYER ID
 # ============================================================
 
-# Keep local player IDs separate from actual Steam IDs.
-#
-# This prevents a local peer ID from ever accidentally
-# colliding with a Steam ID in the save system.
 const LOCAL_PLAYER_ID_OFFSET: int = 90000000000000000
 
 
@@ -79,7 +46,6 @@ const LOCAL_PLAYER_ID_OFFSET: int = 90000000000000000
 # STEAM
 # ============================================================
 
-# Steam host's SteamID64 when joining through Steam.
 var steam_host_id: int = 0
 
 
@@ -87,15 +53,6 @@ var steam_host_id: int = 0
 # SPAWN ASSIGNMENTS
 # ============================================================
 
-# Godot peer ID -> spawn index
-#
-# This is completely separate from player IDs.
-#
-# Example:
-#
-#     1          -> 0
-#     1566542925 -> 1
-#
 var spawn_assignments: Dictionary = {}
 
 
@@ -110,6 +67,36 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_on_connection_failed)
 
 	print("NETWORK: Network manager ready.")
+
+
+# ============================================================
+# SERVER PEER ID
+# ============================================================
+
+func get_server_peer_id() -> int:
+	if network_mode == NetworkMode.LOCAL:
+		return 1
+
+	if multiplayer.is_server():
+		return multiplayer.get_unique_id()
+
+	if steam_host_id > 0:
+		return steam_host_id
+
+	var local_steam_id := int(Steam.getSteamID())
+
+	if local_steam_id > 0:
+		return local_steam_id
+
+	return 0
+
+
+# ============================================================
+# LOCAL PEER ID
+# ============================================================
+
+func get_local_peer_id() -> int:
+	return multiplayer.get_unique_id()
 
 
 # ============================================================
@@ -143,72 +130,34 @@ func is_using_steam() -> bool:
 # PLAYER ID SYSTEM
 # ============================================================
 
-# Returns the persistent/universal player ID for a Godot
-# networking peer.
-#
-# This is the function gameplay systems should normally use.
-#
 func get_player_id(peer_id: int) -> int:
-
-	# --------------------------------------------------------
-	# Already registered?
-	# --------------------------------------------------------
-
 	if peer_ids.has(peer_id):
 		return int(peer_ids[peer_id])
 
-
-	# --------------------------------------------------------
-	# If the supplied value is already a player ID, accept it.
-	#
-	# This allows systems to pass either:
-	#
-	#     Godot peer ID
-	#
-	# or:
-	#
-	#     Universal player ID
-	# --------------------------------------------------------
-
 	for player_id_variant in peer_ids.values():
-
 		var player_id := int(player_id_variant)
 
 		if player_id == peer_id:
 			return player_id
 
-
-	# --------------------------------------------------------
-	# LOCAL
-	# --------------------------------------------------------
-
-	if not is_using_steam():
-		var local_player_id := (
-			LOCAL_PLAYER_ID_OFFSET + peer_id
-		)
+	if network_mode == NetworkMode.LOCAL:
+		var local_player_id := LOCAL_PLAYER_ID_OFFSET + peer_id
 
 		peer_ids[peer_id] = local_player_id
 
 		return local_player_id
 
+	if peer_id > 0:
+		if peer_id == multiplayer.get_unique_id():
+			var local_steam_id := int(Steam.getSteamID())
 
-	# --------------------------------------------------------
-	# STEAM
-	# --------------------------------------------------------
+			if local_steam_id > 0:
+				peer_ids[peer_id] = local_steam_id
+				return local_steam_id
 
-	# The local player's Steam ID can always be obtained
-	# directly.
-	if peer_id == multiplayer.get_unique_id():
+		peer_ids[peer_id] = peer_id
+		return peer_id
 
-		var local_steam_id := int(Steam.getSteamID())
-
-		if local_steam_id > 0:
-			peer_ids[peer_id] = local_steam_id
-
-			return local_steam_id
-
-
-	# We don't know this Steam player's identity yet.
 	print(
 		"NETWORK WARNING: No player ID registered for peer ",
 		peer_id
@@ -218,23 +167,14 @@ func get_player_id(peer_id: int) -> int:
 
 
 # ============================================================
-# REGISTER PLAYER ID
+# REGISTER LOCAL PLAYER ID
 # ============================================================
 
 func _register_local_player_id() -> void:
-
 	var local_peer_id := multiplayer.get_unique_id()
 
-
-	# --------------------------------------------------------
-	# LOCAL
-	# --------------------------------------------------------
-
-	if not is_using_steam():
-
-		var local_player_id := (
-			LOCAL_PLAYER_ID_OFFSET + local_peer_id
-		)
+	if network_mode == NetworkMode.LOCAL:
+		var local_player_id := LOCAL_PLAYER_ID_OFFSET + local_peer_id
 
 		peer_ids[local_peer_id] = local_player_id
 
@@ -247,50 +187,44 @@ func _register_local_player_id() -> void:
 
 		return
 
-
-	# --------------------------------------------------------
-	# STEAM
-	# --------------------------------------------------------
-
 	var steam_id := int(Steam.getSteamID())
 
 	if steam_id <= 0:
-		print(
-			"NETWORK ERROR: Could not get local Steam ID."
-		)
+		print("NETWORK ERROR: Could not get local Steam ID.")
 		return
 
+	peer_ids[local_peer_id] = steam_id
 
-	# Server registers itself directly.
+	print(
+		"NETWORK: Registered Steam player: ",
+		steam_id,
+		" for peer ",
+		local_peer_id
+	)
+
 	if multiplayer.is_server():
-
-		peer_ids[local_peer_id] = steam_id
-
-		print(
-			"NETWORK: Registered Steam player: ",
-			steam_id,
-			" for peer ",
-			local_peer_id
-		)
-
 		return
 
+	var server_peer_id := get_server_peer_id()
 
-	# Client tells the server its Steam ID.
+	if server_peer_id <= 0:
+		print(
+			"NETWORK ERROR: Could not determine Steam server peer ID."
+		)
+		return
+
 	register_player_id.rpc_id(
-		1,
+		server_peer_id,
 		steam_id
 	)
 
 
 @rpc("any_peer", "reliable")
 func register_player_id(player_id: int) -> void:
-
-	# Only the server maintains the authoritative mapping.
 	if not multiplayer.is_server():
 		return
 
-	if not is_using_steam():
+	if network_mode != NetworkMode.STEAM:
 		return
 
 	var sender_peer_id := multiplayer.get_remote_sender_id()
@@ -316,27 +250,20 @@ func register_player_id(player_id: int) -> void:
 # CONNECTED PLAYER IDS
 # ============================================================
 
-# Returns the universal player IDs for every currently
-# connected player.
-#
-# Gameplay systems should prefer this over
-# multiplayer.get_peers().
-#
 func get_connected_player_ids() -> Array[int]:
-
 	var result: Array[int] = []
+	var connected_peers: Array[int] = []
 
-	# Server is always peer 1.
-	var connected_peers: Array[int] = [1]
+	var server_peer_id := get_server_peer_id()
+
+	if server_peer_id > 0:
+		connected_peers.append(server_peer_id)
 
 	for connected_peer in multiplayer.get_peers():
-
 		if not connected_peers.has(connected_peer):
 			connected_peers.append(connected_peer)
 
-
 	for peer_id in connected_peers:
-
 		var player_id := get_player_id(peer_id)
 
 		if player_id <= 0:
@@ -349,7 +276,6 @@ func get_connected_player_ids() -> Array[int]:
 		if not result.has(player_id):
 			result.append(player_id)
 
-
 	return result
 
 
@@ -357,20 +283,15 @@ func get_connected_player_ids() -> Array[int]:
 # CONNECTED PEERS
 # ============================================================
 
-# This is useful when a system specifically needs Godot
-# networking peer IDs.
-#
-# Most gameplay systems should use get_connected_player_ids()
-# instead.
-#
 func get_connected_peer_ids() -> Array[int]:
-
 	var result: Array[int] = []
 
-	result.append(1)
+	var server_peer_id := get_server_peer_id()
+
+	if server_peer_id > 0:
+		result.append(server_peer_id)
 
 	for peer_id in multiplayer.get_peers():
-
 		if not result.has(peer_id):
 			result.append(peer_id)
 
@@ -387,12 +308,10 @@ func host_game() -> void:
 	_close_peer()
 
 	steam_host_id = 0
-
 	peer_ids.clear()
 	spawn_assignments.clear()
 
 	match network_mode:
-
 		NetworkMode.LOCAL:
 			_start_local_host()
 
@@ -422,15 +341,15 @@ func _start_local_host() -> void:
 		return
 
 	peer = local_peer
-
 	multiplayer.multiplayer_peer = peer
 
-	# Host is always peer 1 with ENet.
 	spawn_assignments[1] = 0
 
 	print(
 		"NETWORK: Local host started on port ",
-		PORT
+		PORT,
+		" | Peer ID: ",
+		multiplayer.get_unique_id()
 	)
 
 	_load_world()
@@ -455,13 +374,27 @@ func _start_steam_host() -> void:
 		return
 
 	peer = steam_peer
-
 	multiplayer.multiplayer_peer = peer
 
-	# Steam host is still Godot peer 1.
-	spawn_assignments[1] = 0
+	var host_peer_id := multiplayer.get_unique_id()
+	var host_steam_id := int(Steam.getSteamID())
 
-	print("NETWORK: Steam host started.")
+	if host_steam_id <= 0:
+		print("NETWORK ERROR: Invalid Steam host ID.")
+		_close_peer()
+		return
+
+	steam_host_id = host_steam_id
+
+	spawn_assignments[host_peer_id] = 0
+
+	print(
+		"NETWORK: Steam host started.",
+		" | Steam ID: ",
+		host_steam_id,
+		" | Peer ID: ",
+		host_peer_id
+	)
 
 	_load_world()
 
@@ -495,7 +428,6 @@ func join_local_game() -> void:
 		return
 
 	peer = local_peer
-
 	multiplayer.multiplayer_peer = peer
 
 	print(
@@ -542,7 +474,6 @@ func join_steam_game(host_steam_id: int) -> void:
 		return
 
 	peer = steam_peer
-
 	multiplayer.multiplayer_peer = peer
 
 	print(
@@ -558,9 +489,7 @@ func join_steam_game(host_steam_id: int) -> void:
 # ============================================================
 
 func _load_world() -> void:
-
 	if get_tree().current_scene != null:
-
 		if get_tree().current_scene.scene_file_path == WORLD_SCENE:
 			call_deferred("_world_ready")
 			return
@@ -571,7 +500,6 @@ func _load_world() -> void:
 
 
 func _wait_for_world() -> void:
-
 	while true:
 		await get_tree().process_frame
 
@@ -589,28 +517,14 @@ func _wait_for_world() -> void:
 
 
 func _world_ready() -> void:
-
-	# --------------------------------------------------------
-	# Register our universal player ID.
-	# --------------------------------------------------------
-
 	_register_local_player_id()
-
-
-	# --------------------------------------------------------
-	# Spawn our local player.
-	# --------------------------------------------------------
-
 	_spawn_local_player()
 
-
-	# --------------------------------------------------------
-	# Tell the host that the client world is ready.
-	# --------------------------------------------------------
-
 	if not multiplayer.is_server():
+		var server_peer_id := get_server_peer_id()
 
-		client_world_ready.rpc_id(1)
+		if server_peer_id > 0:
+			client_world_ready.rpc_id(server_peer_id)
 
 
 # ============================================================
@@ -619,7 +533,6 @@ func _world_ready() -> void:
 
 @rpc("any_peer", "reliable")
 func client_world_ready() -> void:
-
 	if not multiplayer.is_server():
 		return
 
@@ -634,7 +547,6 @@ func client_world_ready() -> void:
 
 
 func _send_existing_network_objects(peer_id: int) -> void:
-
 	var world := get_tree().current_scene
 
 	if world == null:
@@ -658,7 +570,6 @@ func _send_existing_network_objects(peer_id: int) -> void:
 	)
 
 	for spawnpoint in network_objects:
-
 		if not is_instance_valid(spawnpoint):
 			continue
 
@@ -676,12 +587,10 @@ func _find_network_spawnpoints(
 	node: Node,
 	result: Array[Node]
 ) -> void:
-
 	if node.has_method("send_existing_to_peer"):
 		result.append(node)
 
 	for child in node.get_children():
-
 		_find_network_spawnpoints(
 			child,
 			result
@@ -693,7 +602,6 @@ func _find_network_spawnpoints(
 # ============================================================
 
 func _spawn_local_player() -> void:
-
 	var world := get_tree().current_scene
 
 	if world == null:
@@ -711,28 +619,22 @@ func _spawn_local_player() -> void:
 
 	var peer_id := multiplayer.get_unique_id()
 
-	# Don't spawn ourselves twice.
 	if world.get_node_or_null(str(peer_id)) != null:
 		return
 
 	var spawn_points: Array[Node3D] = []
 
 	for child in player_spawns.get_children():
-
 		if child is Node3D:
 			spawn_points.append(child)
 
 	if spawn_points.is_empty():
-
 		print(
 			"NETWORK ERROR: No player spawn points."
 		)
-
 		return
 
-	var spawn_index := _get_local_spawn_index(
-		peer_id
-	)
+	var spawn_index := _get_local_spawn_index(peer_id)
 
 	spawn_player.rpc(
 		peer_id,
@@ -741,18 +643,9 @@ func _spawn_local_player() -> void:
 
 
 func _get_local_spawn_index(peer_id: int) -> int:
-
-	# --------------------------------------------------------
-	# SERVER
-	# --------------------------------------------------------
-
 	if multiplayer.is_server():
-
 		if spawn_assignments.has(peer_id):
-
-			return int(
-				spawn_assignments[peer_id]
-			)
+			return int(spawn_assignments[peer_id])
 
 		var new_index := _get_next_spawn_index()
 
@@ -760,68 +653,51 @@ func _get_local_spawn_index(peer_id: int) -> int:
 
 		return new_index
 
-
-	# --------------------------------------------------------
-	# CLIENT
-	# --------------------------------------------------------
-
 	if spawn_assignments.has(peer_id):
+		return int(spawn_assignments[peer_id])
 
-		return int(
-			spawn_assignments[peer_id]
-		)
-
-
-	# LAN fallback.
 	if network_mode == NetworkMode.LOCAL:
-
 		return clampi(
 			peer_id - 1,
 			0,
 			MAX_PLAYERS - 1
 		)
 
-
-	# Steam fallback.
 	var used_slots: Dictionary = {}
 
 	for value in spawn_assignments.values():
-
 		used_slots[int(value)] = true
 
 	for index in range(MAX_PLAYERS):
-
 		if not used_slots.has(index):
-
 			spawn_assignments[peer_id] = index
-
 			return index
 
 	return 0
 
 
 func _get_next_spawn_index() -> int:
-
 	var used_slots: Dictionary = {}
 
 	for value in spawn_assignments.values():
-
 		used_slots[int(value)] = true
 
 	for index in range(MAX_PLAYERS):
-
 		if not used_slots.has(index):
 			return index
 
 	return 0
 
 
+# ============================================================
+# SPAWN PLAYER
+# ============================================================
+
 @rpc("authority", "call_local", "reliable")
 func spawn_player(
 	peer_id: int,
 	spawn_index: int
 ) -> void:
-
 	var world := get_tree().current_scene
 
 	if world == null:
@@ -834,14 +710,12 @@ func spawn_player(
 	if player_spawns == null:
 		return
 
-	# Already exists.
 	if world.get_node_or_null(str(peer_id)) != null:
 		return
 
 	var spawn_points: Array[Node3D] = []
 
 	for child in player_spawns.get_children():
-
 		if child is Node3D:
 			spawn_points.append(child)
 
@@ -854,7 +728,6 @@ func spawn_player(
 		spawn_points.size() - 1
 	)
 
-	# Remember assignment locally.
 	spawn_assignments[peer_id] = spawn_index
 
 	var player := PLAYER.instantiate()
@@ -883,7 +756,11 @@ func spawn_player(
 		" at spawn ",
 		spawn_index,
 		" | Authority: ",
-		player.get_multiplayer_authority()
+		player.get_multiplayer_authority(),
+		" | Local Peer: ",
+		multiplayer.get_unique_id(),
+		" | Server Peer: ",
+		get_server_peer_id()
 	)
 
 
@@ -892,7 +769,6 @@ func spawn_player(
 # ============================================================
 
 func _on_peer_connected(peer_id: int) -> void:
-
 	print(
 		"NETWORK: Peer connected: ",
 		peer_id
@@ -900,11 +776,6 @@ func _on_peer_connected(peer_id: int) -> void:
 
 	if not multiplayer.is_server():
 		return
-
-
-	# --------------------------------------------------------
-	# Assign spawn slot.
-	# --------------------------------------------------------
 
 	var spawn_index := _get_next_spawn_index()
 
@@ -917,36 +788,22 @@ func _on_peer_connected(peer_id: int) -> void:
 		spawn_index
 	)
 
-
-	# --------------------------------------------------------
-	# Spawn new player on everyone.
-	# --------------------------------------------------------
-
 	spawn_player.rpc(
 		peer_id,
 		spawn_index
 	)
 
-
-	# --------------------------------------------------------
-	# Tell new client about existing players.
-	# --------------------------------------------------------
-
 	for existing_peer_id in multiplayer.get_peers():
-
 		if existing_peer_id == peer_id:
 			continue
 
 		var existing_spawn_index := 0
 
 		if spawn_assignments.has(existing_peer_id):
-
 			existing_spawn_index = int(
 				spawn_assignments[existing_peer_id]
 			)
-
 		else:
-
 			existing_spawn_index = _get_next_spawn_index()
 
 			spawn_assignments[existing_peer_id] = (
@@ -959,22 +816,18 @@ func _on_peer_connected(peer_id: int) -> void:
 			existing_spawn_index
 		)
 
-
-	# --------------------------------------------------------
-	# Spawn host for new client.
-	# --------------------------------------------------------
+	var host_peer_id := get_server_peer_id()
 
 	var host_spawn_index := 0
 
-	if spawn_assignments.has(1):
-
+	if spawn_assignments.has(host_peer_id):
 		host_spawn_index = int(
-			spawn_assignments[1]
+			spawn_assignments[host_peer_id]
 		)
 
 	spawn_player.rpc_id(
 		peer_id,
-		1,
+		host_peer_id,
 		host_spawn_index
 	)
 
@@ -984,17 +837,14 @@ func _on_peer_connected(peer_id: int) -> void:
 # ============================================================
 
 func _on_peer_disconnected(peer_id: int) -> void:
-
 	print(
 		"NETWORK: Peer disconnected: ",
 		peer_id
 	)
 
-
 	var world := get_tree().current_scene
 
 	if world != null:
-
 		var player := world.get_node_or_null(
 			str(peer_id)
 		)
@@ -1002,13 +852,9 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		if player != null:
 			player.queue_free()
 
-
-	# Remove universal player ID mapping.
 	if peer_ids.has(peer_id):
 		peer_ids.erase(peer_id)
 
-
-	# Free spawn slot.
 	if spawn_assignments.has(peer_id):
 		spawn_assignments.erase(peer_id)
 
@@ -1018,7 +864,6 @@ func _on_peer_disconnected(peer_id: int) -> void:
 # ============================================================
 
 func _on_server_disconnected() -> void:
-
 	print(
 		"NETWORK: Server disconnected."
 	)
@@ -1038,7 +883,6 @@ func _on_server_disconnected() -> void:
 # ============================================================
 
 func _on_connection_failed() -> void:
-
 	print(
 		"NETWORK ERROR: Connection failed."
 	)
@@ -1054,7 +898,6 @@ func _on_connection_failed() -> void:
 # ============================================================
 
 func _close_peer() -> void:
-
 	if peer != null:
 		peer.close()
 
