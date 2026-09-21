@@ -7,6 +7,7 @@
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_yjs2o"]
 [ext_resource type="Texture2D" uid="uid://8qmiqbkbbvtw" path="res://assets/ui/crosshair.png" id="4_n7ygu"]
 [ext_resource type="Script" uid="uid://q3y50d1vc6e1" path="res://assets/player/pause_menu.gd" id="6_75r6w"]
+[ext_resource type="PackedScene" uid="uid://hdw13t1wmit6" path="res://assets/ui/settings.tscn" id="6_tp50g"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tp50g"]
 bg_color = Color(0, 0.6, 0.16999999, 1)
@@ -32,41 +33,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GrabUI" type="TextureRect" parent="." unique_id=1017932733]
-visible = false
-offset_right = 200.0
-offset_bottom = 200.0
-scale = Vector2(0.29173297, 0.29173297)
-pivot_offset = Vector2(-40, -40)
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource("2_ndm4a")
-
-[node name="FPS" type="Label" parent="." unique_id=1585240937]
-offset_left = 9.0
-offset_top = 512.0
-offset_right = 203.0
-offset_bottom = 535.0
-size_flags_horizontal = 0
-theme = ExtResource("1_dtcvl")
-theme_override_fonts/font = ExtResource("2_yjs2o")
-text = "FPS: "
-script = ExtResource("1_1np0y")
-
-[node name="DebugInfo" type="Label" parent="." unique_id=1543017075]
-offset_left = 9.0
-offset_top = 536.0
-offset_right = 203.0
-offset_bottom = 559.0
-size_flags_horizontal = 0
-theme = ExtResource("1_dtcvl")
-theme_override_fonts/font = ExtResource("2_yjs2o")
-text = "POS:
-VEL:
-SPEED:
-HP:
-OXYGEN:"
-
 [node name="UIContainer" type="MarginContainer" parent="." unique_id=339930667]
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,54 +41,56 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PauseMenu" type="MarginContainer" parent="UIContainer" unique_id=2094654188]
-visible = false
 layout_mode = 2
 mouse_filter = 0
 theme = ExtResource("1_dtcvl")
 script = ExtResource("6_75r6w")
 
-[node name="PanelContainer" type="PanelContainer" parent="UIContainer/PauseMenu" unique_id=1919551535]
+[node name="Settings" parent="UIContainer/PauseMenu" unique_id=33079546 instance=ExtResource("6_tp50g")]
+visible = false
+
+[node name="CNT_PauseMenu" type="PanelContainer" parent="UIContainer/PauseMenu" unique_id=1919551535]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="MarginContainer" type="MarginContainer" parent="UIContainer/PauseMenu/PanelContainer" unique_id=1080955964]
+[node name="MarginContainer" type="MarginContainer" parent="UIContainer/PauseMenu/CNT_PauseMenu" unique_id=1080955964]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer" unique_id=1700845513]
+[node name="VBoxContainer2" type="VBoxContainer" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer" unique_id=1700845513]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PauseLabel" type="Label" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2" unique_id=920446811]
+[node name="PauseLabel" type="Label" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2" unique_id=920446811]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_yjs2o")
 text = "pause menu"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2" unique_id=622350805]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2" unique_id=622350805]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="ResumeBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=67314790]
+[node name="ResumeBtn" type="Button" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=67314790]
 visible = false
 layout_mode = 2
 text = "RESUME"
 
-[node name="SettingsBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=411222150]
+[node name="SettingsBtn" type="Button" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=411222150]
 layout_mode = 2
 text = "settings"
 
-[node name="QuitToMenuBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=658325764]
+[node name="QuitToMenuBtn" type="Button" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=658325764]
 layout_mode = 2
 text = "quit to menu"
 
-[node name="QuitGameBtn" type="Button" parent="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=215111693]
+[node name="QuitGameBtn" type="Button" parent="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer" unique_id=215111693]
 layout_mode = 2
 text = "quit game"
 
@@ -293,7 +261,42 @@ layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_75r6w")
 rounded = true
 
-[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/ResumeBtn" to="UIContainer/PauseMenu" method="_on_resume_btn_pressed"]
-[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/SettingsBtn" to="UIContainer/PauseMenu" method="_on_settings_btn_pressed"]
-[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/QuitToMenuBtn" to="UIContainer/PauseMenu" method="_on_quit_to_menu_btn_pressed"]
-[connection signal="pressed" from="UIContainer/PauseMenu/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer/QuitGameBtn" to="UIContainer/PauseMenu" method="_on_quit_game_btn_pressed"]
+[node name="GrabUI" type="TextureRect" parent="." unique_id=1017932733]
+visible = false
+offset_right = 200.0
+offset_bottom = 200.0
+scale = Vector2(0.29173297, 0.29173297)
+pivot_offset = Vector2(-40, -40)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = ExtResource("2_ndm4a")
+
+[node name="FPS" type="Label" parent="." unique_id=1585240937]
+offset_left = 9.0
+offset_top = 512.0
+offset_right = 203.0
+offset_bottom = 535.0
+size_flags_horizontal = 0
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "FPS: "
+script = ExtResource("1_1np0y")
+
+[node name="DebugInfo" type="Label" parent="." unique_id=1543017075]
+offset_left = 9.0
+offset_top = 536.0
+offset_right = 203.0
+offset_bottom = 643.0
+size_flags_horizontal = 0
+theme = ExtResource("1_dtcvl")
+theme_override_fonts/font = ExtResource("2_yjs2o")
+text = "POS:
+VEL:
+SPEED:
+HP:
+OXYGEN:"
+
+[connection signal="pressed" from="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer/ResumeBtn" to="UIContainer/PauseMenu" method="_on_resume_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer/SettingsBtn" to="UIContainer/PauseMenu" method="_on_settings_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer/QuitToMenuBtn" to="UIContainer/PauseMenu" method="_on_quit_to_menu_btn_pressed"]
+[connection signal="pressed" from="UIContainer/PauseMenu/CNT_PauseMenu/MarginContainer/VBoxContainer2/VBoxContainer/QuitGameBtn" to="UIContainer/PauseMenu" method="_on_quit_game_btn_pressed"]

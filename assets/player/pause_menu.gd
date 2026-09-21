@@ -1,25 +1,88 @@
 extends MarginContainer
 
-@onready var pause_menu = self
+@onready var pause_menu = $CNT_PauseMenu
+@onready var settings: CanvasLayer = $Settings
+@onready var player: CharacterBody3D = get_parent().get_parent().get_parent() as CharacterBody3D
 
-# Called when the node enters the scene tree for the first time.
+var escape_was_pressed := false
+
+
 func _ready() -> void:
-	pass # Replace with function body.
+	pause_menu.hide()
+	settings.hide()
+
+	if player != null:
+		player.pause_menu_open = false
+
+	call_deferred("_initialize_mouse")
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _initialize_mouse() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 
-func _on_resume_btn_pressed() -> void:
-		pause_menu.hide()
-		get_viewport().gui_release_focus()
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+func _process(_delta: float) -> void:
+	var escape_pressed := Input.is_key_pressed(KEY_ESCAPE)
+
+	if escape_pressed and not escape_was_pressed:
+		_handle_escape()
+
+	escape_was_pressed = escape_pressed
+
+
+func _handle_escape() -> void:
+	# Settings -> Pause Menu
+	if settings.visible:
+		_on_settings_back_pressed()
+		return
+
+	# Pause Menu -> Gameplay
+	if pause_menu.visible:
+		_close_pause_menu()
+		return
+
+	# Gameplay -> Pause Menu
+	_open_pause_menu()
+
+
+func _open_pause_menu() -> void:
+	pause_menu.show()
+
+	if player != null:
+		player.pause_menu_open = true
+
+	get_viewport().gui_release_focus()
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+
+func _close_pause_menu() -> void:
+	pause_menu.hide()
+
+	if player != null:
+		player.pause_menu_open = false
+
+	get_viewport().gui_release_focus()
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 
 func _on_settings_btn_pressed() -> void:
-	pass # Replace with function body.
+	pause_menu.hide()
+	settings.show()
+
+	if player != null:
+		player.pause_menu_open = true
+
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+
+func _on_settings_back_pressed() -> void:
+	settings.hide()
+	pause_menu.show()
+
+	if player != null:
+		player.pause_menu_open = true
+
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func _on_quit_to_menu_btn_pressed() -> void:

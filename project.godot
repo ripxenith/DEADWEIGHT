@@ -34,6 +34,7 @@ TileRunInstancesGlobal="*uid://b6fg6pu2bfi14"
 CyclopsAutoload="*uid://4siqre3jhe80"
 SteamManager="*uid://c8ex7vu4mplc3"
 SaveManager="*uid://c0vbwr5ikb3ba"
+Settings="*uid://cctlftoxrpxfx"
 
 [display]
 
@@ -49,6 +50,7 @@ enabled=PackedStringArray("res://addons/cyclops_level_builder/plugin.cfg", "res:
 [file_customization]
 
 folder_colors={
+"res://addons/": "teal",
 "res://assets/": "purple",
 "res://blender/": "orange",
 "res://level/": "green",
@@ -60,6 +62,7 @@ folder_colors={
 Grabbable=""
 Interactable=""
 SellableObject=""
+SettingsMenu=""
 
 [input]
 

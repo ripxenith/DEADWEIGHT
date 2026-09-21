@@ -10,7 +10,7 @@ extends CharacterBody3D
 @export var jump_velocity := 4.5
 @export var gravity := 9.8
 
-@export var mouse_sensitivity := 0.003
+var mouse_sensitivity := 0.00001
 @export var max_pitch := 89.0
 
 @export var crouch_camera_height := 1.0
@@ -144,6 +144,8 @@ var controlled_ship: Node3D = null
 var player_display_name: String = "Player"
 
 var pause_menu_open := false
+
+var settings_menu: CanvasLayer = null
 
 
 # ============================================================
@@ -337,7 +339,6 @@ func _ready() -> void:
 	# PAUSE MENU
 	# --------------------------------------------------------
 
-	pause_menu.hide()
 	pause_menu_open = false
 
 	# --------------------------------------------------------
@@ -353,6 +354,7 @@ func _ready() -> void:
 
 		player_ui.show()
 		playermodel.hide()
+		settings_menu = get_tree().get_first_node_in_group("SettingsMenu")
 
 	# --------------------------------------------------------
 	# REMOTE PLAYERS
@@ -512,75 +514,18 @@ func _input(event: InputEvent) -> void:
 
 	if controlling_ship:
 		return
-
+	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_ESCAPE:
-			toggle_pause_menu()
+			pause_menu.handle_escape()
 			get_viewport().set_input_as_handled()
 			return
-
-	if pause_menu != null and pause_menu.visible:
-		return
 
 	if event is InputEventMouseMotion:
 		handle_mouse_motion(event)
 
 	elif event is InputEventMouseButton:
 		handle_mouse_buttons(event)
-
-
-# ============================================================
-# PAUSE MENU
-# ============================================================
-
-func toggle_pause_menu() -> void:
-	if pause_menu == null:
-		return
-
-	if pause_menu.visible:
-		pause_menu.hide()
-		pause_menu_open = false
-
-		Input.set_mouse_mode(
-			Input.MOUSE_MODE_CAPTURED
-		)
-
-		get_viewport().gui_release_focus()
-
-	else:
-		pause_menu.show()
-		pause_menu_open = true
-
-		Input.set_mouse_mode(
-			Input.MOUSE_MODE_VISIBLE
-		)
-
-
-func open_pause_menu() -> void:
-	if pause_menu_open:
-		return
-
-	pause_menu_open = true
-
-	pause_menu.show()
-
-	Input.set_mouse_mode(
-		Input.MOUSE_MODE_VISIBLE
-	)
-
-
-func close_pause_menu() -> void:
-	if not pause_menu_open:
-		return
-
-	pause_menu_open = false
-
-	pause_menu.hide()
-
-	Input.set_mouse_mode(
-		Input.MOUSE_MODE_CAPTURED
-	)
-
 
 # ============================================================
 # MOUSE LOOK
@@ -1375,6 +1320,8 @@ func _process(_delta: float) -> void:
 
 	if not is_multiplayer_authority():
 		return
+
+	mouse_sensitivity = Settings.get_mouse_sensitivity() * 0.00001
 
 	if controlling_ship:
 		return

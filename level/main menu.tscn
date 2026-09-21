@@ -6,6 +6,7 @@
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="4_gfeb6"]
 [ext_resource type="Shader" uid="uid://c4ku0qqwjgb6t" path="res://level/environment/sun_atmosphere.gdshader" id="4_vlynq"]
 [ext_resource type="Theme" uid="uid://c6p2l2s66xekd" path="res://assets/theme/menu_theme.tres" id="5_gxowf"]
+[ext_resource type="PackedScene" uid="uid://hdw13t1wmit6" path="res://assets/ui/settings.tscn" id="5_k1ytg"]
 [ext_resource type="FontFile" uid="uid://cbng15y6liymn" path="res://assets/font/Pointless.ttf" id="5_webmu"]
 [ext_resource type="Script" uid="uid://bdiav11mthxbf" path="res://level/menu_ui.gd" id="6_vlynq"]
 
@@ -121,10 +122,10 @@ glow_normalized = true
 glow_intensity = 2.3
 glow_bloom = 0.23
 
-[node name="main_menu" type="CanvasLayer" unique_id=1484944669]
+[node name="UI_MainMenu" type="CanvasLayer" unique_id=1484944669]
 script = ExtResource("6_vlynq")
 
-[node name="menu ui" type="Control" parent="." unique_id=140366587]
+[node name="CTRL_MenuUI" type="Control" parent="." unique_id=140366587]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -133,7 +134,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("5_gxowf")
 
-[node name="PanelContainer" type="PanelContainer" parent="menu ui" unique_id=1058918470]
+[node name="PanelContainer" type="PanelContainer" parent="CTRL_MenuUI" unique_id=1058918470]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -143,7 +144,42 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vlynq")
 
-[node name="Label" type="Label" parent="menu ui" unique_id=1284022064]
+[node name="CTRL_Main" type="Control" parent="CTRL_MenuUI" unique_id=1004792668]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CNT_Menu" type="VBoxContainer" parent="CTRL_MenuUI/CTRL_Main" unique_id=941610]
+layout_mode = 0
+offset_left = 85.0
+offset_top = 200.0
+offset_right = 592.0
+offset_bottom = 462.0
+
+[node name="BTN_HostGame" type="Button" parent="CTRL_MenuUI/CTRL_Main/CNT_Menu" unique_id=1964664379]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "host lobby"
+
+[node name="BTN_JoinGame" type="Button" parent="CTRL_MenuUI/CTRL_Main/CNT_Menu" unique_id=1411449102]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "join lobby
+"
+
+[node name="BTN_Settings" type="Button" parent="CTRL_MenuUI/CTRL_Main/CNT_Menu" unique_id=634317430]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "settings
+"
+
+[node name="BTN_Exit" type="Button" parent="CTRL_MenuUI/CTRL_Main/CNT_Menu" unique_id=1875893675]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "quit game
+"
+
+[node name="LBL_GameTitle" type="Label" parent="CTRL_MenuUI/CTRL_Main" unique_id=1284022064]
 layout_mode = 0
 offset_left = 85.0
 offset_top = 79.0
@@ -152,34 +188,7 @@ offset_bottom = 143.0
 text = "deadweight"
 label_settings = SubResource("LabelSettings_hotrt")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="menu ui" unique_id=941610]
-visible = false
-layout_mode = 0
-offset_left = 85.0
-offset_top = 200.0
-offset_right = 592.0
-offset_bottom = 462.0
-
-[node name="host_game" type="Button" parent="menu ui/VBoxContainer" unique_id=1964664379]
-layout_mode = 2
-text = "host lobby"
-
-[node name="join_game" type="Button" parent="menu ui/VBoxContainer" unique_id=1411449102]
-layout_mode = 2
-text = "join lobby
-"
-
-[node name="settings" type="Button" parent="menu ui/VBoxContainer" unique_id=634317430]
-layout_mode = 2
-text = "settings
-"
-
-[node name="exit" type="Button" parent="menu ui/VBoxContainer" unique_id=1875893675]
-layout_mode = 2
-text = "quit game
-"
-
-[node name="UpdateButton" type="Button" parent="menu ui" unique_id=1188586297]
+[node name="BTN_Update" type="Button" parent="CTRL_MenuUI" unique_id=1188586297]
 visible = false
 layout_mode = 1
 anchors_preset = 3
@@ -195,7 +204,7 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "UPDATE GAME"
 
-[node name="UpdateStatus" type="Label" parent="menu ui" unique_id=1578077335]
+[node name="LBL_UpdateStatus" type="Label" parent="CTRL_MenuUI" unique_id=1578077335]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -213,52 +222,7 @@ text = "Update Status..."
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="SettingsMenu" type="Panel" parent="menu ui" unique_id=659264973]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 80.0
-offset_top = -165.5
-offset_right = 581.0
-offset_bottom = 165.5
-grow_vertical = 2
-theme = ExtResource("5_gxowf")
-
-[node name="MarginContainer" type="MarginContainer" parent="menu ui/SettingsMenu" unique_id=398798210]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="HBoxContainer" type="HBoxContainer" parent="menu ui/SettingsMenu/MarginContainer" unique_id=2114166442]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer" unique_id=1544442187]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer" unique_id=483967090]
-layout_mode = 2
-theme = ExtResource("5_gxowf")
-
-[node name="Label" type="Label" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=897725787]
-layout_mode = 2
-theme = ExtResource("5_gxowf")
-theme_override_fonts/font = ExtResource("4_gfeb6")
-text = "sensitivity"
-
-[node name="HSlider" type="HSlider" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=853572941]
-layout_mode = 2
-min_value = 0.001
-max_value = 5.0
-step = 0.001
-value = 0.001
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="menu ui/SettingsMenu/MarginContainer/HBoxContainer" unique_id=341171195]
-layout_mode = 2
+[node name="Settings" parent="CTRL_MenuUI" unique_id=33079546 groups=["SettingsMenu"] instance=ExtResource("5_k1ytg")]
 
 [node name="background" type="Node3D" parent="." unique_id=1352294118 groups=["Grabbable"]]
 
@@ -316,11 +280,10 @@ environment = SubResource("Environment_bm6ue")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -2500, 0)
 far = 999999.0
 
-[connection signal="pressed" from="menu ui/VBoxContainer/host_game" to="." method="_on_host_game_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/host_game" to="menu ui" method="_on_host_game_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/join_game" to="." method="_on_join_game_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/join_game" to="menu ui" method="_on_join_game_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/settings" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/settings" to="menu ui" method="_on_settings_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/exit" to="." method="_on_exit_pressed"]
-[connection signal="pressed" from="menu ui/VBoxContainer/exit" to="menu ui" method="_on_exit_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_HostGame" to="." method="_on_host_game_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_HostGame" to="CTRL_MenuUI" method="_on_host_game_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_JoinGame" to="." method="_on_join_game_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_JoinGame" to="CTRL_MenuUI" method="_on_join_game_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_Settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_Exit" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="CTRL_MenuUI/CTRL_Main/CNT_Menu/BTN_Exit" to="CTRL_MenuUI" method="_on_exit_pressed"]

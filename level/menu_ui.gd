@@ -11,13 +11,14 @@ var update_available := false
 
 var http_request: HTTPRequest
 
-@onready var update_button: Button = $"menu ui/UpdateButton"
-@onready var update_label: Label = $"menu ui/UpdateStatus"
+@onready var update_button: Button = $CTRL_MenuUI/BTN_Update
+@onready var update_label: Label = $CTRL_MenuUI/LBL_UpdateStatus
 
 
 func _ready() -> void:
+	$CTRL_MenuUI/Settings.hide()
+	$CTRL_MenuUI/Settings.back_pressed.connect(_on_settings_back_pressed)
 	print_debug("Main menu loaded.")
-
 	if not update_button.pressed.is_connected(_on_update_pressed):
 		update_button.pressed.connect(_on_update_pressed)
 
@@ -523,3 +524,17 @@ func _on_update_pressed() -> void:
 	print_debug("Update button pressed!")
 
 	download_update()
+
+
+
+func _on_settings_pressed() -> void:
+	$CTRL_MenuUI/Settings.visible = true
+	$CTRL_MenuUI/CTRL_Main.visible = false
+	$CTRL_MenuUI/BTN_Update.visible = false
+	$CTRL_MenuUI/LBL_UpdateStatus.visible = false
+
+func _on_settings_back_pressed() -> void:
+	$CTRL_MenuUI/Settings.visible = false
+	$CTRL_MenuUI/CTRL_Main.visible = true
+	$CTRL_MenuUI/BTN_Update.visible = true
+	$CTRL_MenuUI/LBL_UpdateStatus.visible = true
