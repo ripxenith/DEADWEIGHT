@@ -79,7 +79,7 @@ func activate() -> void:
 	# GET CONNECTED PLAYERS
 	# ========================================================
 
-	var player_count: int = Network.player_steam_ids.size()
+	var player_count: int = multiplayer.get_peers().size() + 1 #Network.player_steam_ids.size()
 
 	if player_count <= 0:
 		print_debug("SELL AREA ERROR: No players found.")

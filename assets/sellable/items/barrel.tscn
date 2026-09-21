@@ -2,7 +2,13 @@
 
 [ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/sellable_object.gd" id="1_nlbrl"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="2_invjh"]
+[ext_resource type="Script" uid="uid://dut3ybyur25xo" path="res://script/object_definition.gd" id="2_jlghd"]
 [ext_resource type="Texture2D" uid="uid://cj68lurdyex41" path="res://assets/texture/prototypes/dark/texture_05.png" id="3_invjh"]
+
+[sub_resource type="Resource" id="Resource_gde2f"]
+script = ExtResource("2_jlghd")
+object_name = "Barrel"
+metadata/_custom_type_script = "uid://dut3ybyur25xo"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jlghd"]
 albedo_texture = ExtResource("3_invjh")
@@ -34,6 +40,8 @@ properties/5/replication_mode = 1
 [node name="Barrel" type="RigidBody3D" unique_id=2108653769 groups=["Grabbable"]]
 mass = 15.0
 script = ExtResource("1_nlbrl")
+object_definition = SubResource("Resource_gde2f")
+sell_value = 100
 metadata/_custom_type_script = "uid://ww3racfx668m"
 
 [node name="price" type="Label3D" parent="." unique_id=1962625682]

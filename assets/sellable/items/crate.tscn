@@ -1,8 +1,14 @@
 [gd_scene format=3 uid="uid://cvpk5e5io237d"]
 
 [ext_resource type="Script" uid="uid://ww3racfx668m" path="res://assets/sellable/items/sellable_object.gd" id="2_cmx3m"]
+[ext_resource type="Script" uid="uid://dut3ybyur25xo" path="res://script/object_definition.gd" id="2_wtrs5"]
 [ext_resource type="Texture2D" uid="uid://gfkb25dintn4" path="res://assets/texture/prototypes/dark/texture_04.png" id="3_7tnr7"]
 [ext_resource type="FontFile" uid="uid://bimnjf0wdru1a" path="res://assets/font/UAV-OSD-Sans-Mono.ttf" id="4_q5fg5"]
+
+[sub_resource type="Resource" id="Resource_ebxgq"]
+script = ExtResource("2_wtrs5")
+object_name = "Crate"
+metadata/_custom_type_script = "uid://dut3ybyur25xo"
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bi6nq"]
 
@@ -34,6 +40,8 @@ properties/5/replication_mode = 1
 [node name="Crate" type="RigidBody3D" unique_id=1089639337 groups=["Grabbable"]]
 mass = 10.0
 script = ExtResource("2_cmx3m")
+object_definition = SubResource("Resource_ebxgq")
+sell_value = 100
 
 [node name="price" type="Label3D" parent="." unique_id=335015690]
 visibility_range_end = 3.0

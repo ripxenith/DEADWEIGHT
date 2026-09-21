@@ -8,3 +8,4 @@ metallic = 1.0
 metallic_specular = 0.17
 metallic_texture = ExtResource("1_2sd3d")
 roughness = 0.11
+rim_tint = 0.63

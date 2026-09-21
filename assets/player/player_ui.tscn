@@ -75,6 +75,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PauseMenu" type="MarginContainer" parent="UIContainer" unique_id=2094654188]
+visible = false
 layout_mode = 2
 mouse_filter = 0
 theme = ExtResource("1_dtcvl")
