@@ -63,7 +63,3 @@ mesh = SubResource("BoxMesh_qoch3")
 process_mode = 3
 replication_config = SubResource("SceneReplicationConfig_bi6nq")
 public_visibility = false
-
-[node name="SellableObject" type="RigidBody3D" parent="." unique_id=155454146]
-script = ExtResource("2_cmx3m")
-metadata/_custom_type_script = "uid://ww3racfx668m"

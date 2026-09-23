@@ -255,58 +255,39 @@ func join_lobby(target_lobby_id: int) -> void:
 # ============================================================
 
 func _on_lobby_joined(
-	joined_lobby_id: int,
-	_permissions: int,
-	_locked: bool,
+	lobby: int,
+	permissions: int,
+	locked: bool,
 	response: int
 ) -> void:
-
-	print(
-		"STEAM: Lobby joined callback."
-	)
+	print("STEAM: Lobby joined callback.")
 
 	if response != 1:
-
-		print(
-			"STEAM ERROR: Failed to join lobby. Response: ",
-			response
-		)
-
+		print("STEAM: Failed to join lobby. Response: ", response)
 		return
 
+	lobby_id = lobby
 
-	lobby_id = joined_lobby_id
-	is_lobby_host = false
+	print("STEAM: Joined lobby: ", lobby_id)
 
-	print(
-		"STEAM: Joined lobby: ",
-		lobby_id
-	)
+	var owner_id := int(Steam.getLobbyOwner(lobby_id))
 
+	print("STEAM: Lobby owner: ", owner_id)
 
-	# --------------------------------------------------------
-	# Get lobby owner
-	# --------------------------------------------------------
+	var local_steam_id := int(Steam.getSteamID())
 
-	var owner_id := int(
-		Steam.getLobbyOwner(lobby_id)
-	)
-
-	print(
-		"STEAM: Lobby owner: ",
-		owner_id
-	)
-
-
-	# --------------------------------------------------------
-	# Connect to the Steam network host.
-	# --------------------------------------------------------
-
-	if Network != null:
-
-		Network.join_steam_game(
-			owner_id
+	# The host receives this callback too after creating its own lobby.
+	# Do NOT reconnect the host as a Steam client.
+	if owner_id == local_steam_id:
+		print(
+			"STEAM: This instance owns the lobby. ",
+			"Keeping existing Steam host connection."
 		)
+		return
+
+	print("STEAM: Joining remote Steam host: ", owner_id)
+
+	Network.join_steam_game(owner_id)
 
 
 # ============================================================

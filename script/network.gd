@@ -1,5 +1,28 @@
 extends Node
 
+# ============================================================
+# NETWORK.GD
+# ------------------------------------------------------------
+# Autoload singleton that manages switching between Godot's
+# built-in LOCAL (ENet) multiplayer and STEAM (GodotSteam)
+# multiplayer, plus player spawning / player-id bookkeeping.
+#
+# USAGE FROM OTHER SCRIPTS:
+#
+#   if Network.LOCAL:
+#       # do local-only stuff
+#
+#   if Network.STEAM:
+#       # do steam-only stuff
+#
+# `Network.LOCAL` and `Network.STEAM` are live computed
+# properties (not static consts) — they always reflect
+# whatever `network_mode` currently is, so you never have to
+# keep them in sync manually. Under the hood they just compare
+# against `network_mode`, so `match network_mode:` still works
+# too if you prefer that style.
+# ============================================================
+
 const PLAYER = preload("res://assets/player/player.tscn")
 
 const WORLD_SCENE := "res://level/environment/open_world.tscn"
@@ -18,7 +41,22 @@ enum NetworkMode {
 	STEAM
 }
 
+## Change this (or call use_local_network() / use_steam_network())
+## to flip which backend the game uses. This is the single
+## source of truth — everything else derives from it.
 var network_mode: NetworkMode = NetworkMode.STEAM
+
+## Live boolean, true when network_mode == NetworkMode.LOCAL.
+## Lets other scripts write `if Network.LOCAL:`.
+var LOCAL: bool:
+	get:
+		return network_mode == NetworkMode.LOCAL
+
+## Live boolean, true when network_mode == NetworkMode.STEAM.
+## Lets other scripts write `if Network.STEAM:`.
+var STEAM: bool:
+	get:
+		return network_mode == NetworkMode.STEAM
 
 
 # ============================================================
@@ -66,7 +104,48 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 
-	print("NETWORK: Network manager ready.")
+	print(
+		"NETWORK: Network manager ready. Mode: ",
+		_mode_name()
+	)
+
+
+# ============================================================
+# MODE HELPERS
+# ============================================================
+
+func _mode_name() -> String:
+	match network_mode:
+		NetworkMode.LOCAL:
+			return "LOCAL"
+		NetworkMode.STEAM:
+			return "STEAM"
+
+	return "UNKNOWN"
+
+
+func set_network_mode(mode: NetworkMode) -> void:
+	network_mode = mode
+	print("NETWORK: Mode set to ", _mode_name(), ".")
+
+
+## Switches the active backend to Godot's local ENet peer.
+## Safe to call any time — does NOT start hosting/joining by
+## itself, it only changes what host_game() / join_*_game()
+## will do next. Useful for a debug toggle in a menu.
+func use_local_network() -> void:
+	set_network_mode(NetworkMode.LOCAL)
+
+
+## Switches the active backend to Steam (GodotSteam).
+func use_steam_network() -> void:
+	set_network_mode(NetworkMode.STEAM)
+
+
+## Kept for backwards compatibility with any existing code that
+## already calls this. Equivalent to `Network.STEAM`.
+func is_using_steam() -> bool:
+	return STEAM
 
 
 # ============================================================
@@ -74,21 +153,14 @@ func _ready() -> void:
 # ============================================================
 
 func get_server_peer_id() -> int:
-	if network_mode == NetworkMode.LOCAL:
-		return 1
+	# IMPORTANT:
+	# This is the Godot MultiplayerPeer server ID.
+	# It is NOT the Steam ID.
+	#
+	# SteamMultiplayerPeer.create_host(0) gives the host
+	# Godot peer ID 1.
 
-	if multiplayer.is_server():
-		return multiplayer.get_unique_id()
-
-	if steam_host_id > 0:
-		return steam_host_id
-
-	var local_steam_id := int(Steam.getSteamID())
-
-	if local_steam_id > 0:
-		return local_steam_id
-
-	return 0
+	return 1
 
 
 # ============================================================
@@ -97,33 +169,6 @@ func get_server_peer_id() -> int:
 
 func get_local_peer_id() -> int:
 	return multiplayer.get_unique_id()
-
-
-# ============================================================
-# MODE
-# ============================================================
-
-func set_network_mode(mode: NetworkMode) -> void:
-	network_mode = mode
-
-	match network_mode:
-		NetworkMode.LOCAL:
-			print("NETWORK: Mode set to LOCAL.")
-
-		NetworkMode.STEAM:
-			print("NETWORK: Mode set to STEAM.")
-
-
-func use_local_network() -> void:
-	set_network_mode(NetworkMode.LOCAL)
-
-
-func use_steam_network() -> void:
-	set_network_mode(NetworkMode.STEAM)
-
-
-func is_using_steam() -> bool:
-	return network_mode == NetworkMode.STEAM
 
 
 # ============================================================
@@ -140,7 +185,7 @@ func get_player_id(peer_id: int) -> int:
 		if player_id == peer_id:
 			return player_id
 
-	if network_mode == NetworkMode.LOCAL:
+	if LOCAL:
 		var local_player_id := LOCAL_PLAYER_ID_OFFSET + peer_id
 
 		peer_ids[peer_id] = local_player_id
@@ -173,7 +218,7 @@ func get_player_id(peer_id: int) -> int:
 func _register_local_player_id() -> void:
 	var local_peer_id := multiplayer.get_unique_id()
 
-	if network_mode == NetworkMode.LOCAL:
+	if LOCAL:
 		var local_player_id := LOCAL_PLAYER_ID_OFFSET + local_peer_id
 
 		peer_ids[local_peer_id] = local_player_id
@@ -187,6 +232,7 @@ func _register_local_player_id() -> void:
 
 		return
 
+	# STEAM
 	var steam_id := int(Steam.getSteamID())
 
 	if steam_id <= 0:
@@ -202,29 +248,13 @@ func _register_local_player_id() -> void:
 		local_peer_id
 	)
 
-	if multiplayer.is_server():
-		return
-
-	var server_peer_id := get_server_peer_id()
-
-	if server_peer_id <= 0:
-		print(
-			"NETWORK ERROR: Could not determine Steam server peer ID."
-		)
-		return
-
-	register_player_id.rpc_id(
-		server_peer_id,
-		steam_id
-	)
-
 
 @rpc("any_peer", "reliable")
 func register_player_id(player_id: int) -> void:
 	if not multiplayer.is_server():
 		return
 
-	if network_mode != NetworkMode.STEAM:
+	if not STEAM:
 		return
 
 	var sender_peer_id := multiplayer.get_remote_sender_id()
@@ -252,25 +282,11 @@ func register_player_id(player_id: int) -> void:
 
 func get_connected_player_ids() -> Array[int]:
 	var result: Array[int] = []
-	var connected_peers: Array[int] = []
 
-	var server_peer_id := get_server_peer_id()
-
-	if server_peer_id > 0:
-		connected_peers.append(server_peer_id)
-
-	for connected_peer in multiplayer.get_peers():
-		if not connected_peers.has(connected_peer):
-			connected_peers.append(connected_peer)
-
-	for peer_id in connected_peers:
+	for peer_id in get_connected_peer_ids():
 		var player_id := get_player_id(peer_id)
 
 		if player_id <= 0:
-			print(
-				"NETWORK WARNING: Could not resolve player ID for peer ",
-				peer_id
-			)
 			continue
 
 		if not result.has(player_id):
@@ -286,10 +302,8 @@ func get_connected_player_ids() -> Array[int]:
 func get_connected_peer_ids() -> Array[int]:
 	var result: Array[int] = []
 
-	var server_peer_id := get_server_peer_id()
-
-	if server_peer_id > 0:
-		result.append(server_peer_id)
+	# Server is always Godot peer 1.
+	result.append(1)
 
 	for peer_id in multiplayer.get_peers():
 		if not result.has(peer_id):
@@ -302,8 +316,11 @@ func get_connected_peer_ids() -> Array[int]:
 # HOST
 # ============================================================
 
+## Starts hosting using whatever `network_mode` is currently
+## set to. Flip modes with use_local_network() / use_steam_network()
+## (or set network_mode directly) before calling this.
 func host_game() -> void:
-	print("NETWORK: Starting host...")
+	print("NETWORK: Starting host in ", _mode_name(), " mode...")
 
 	_close_peer()
 
@@ -311,12 +328,12 @@ func host_game() -> void:
 	peer_ids.clear()
 	spawn_assignments.clear()
 
-	match network_mode:
-		NetworkMode.LOCAL:
-			_start_local_host()
-
-		NetworkMode.STEAM:
-			_start_steam_host()
+	if LOCAL:
+		_start_local_host()
+	elif STEAM:
+		_start_steam_host()
+	else:
+		print("NETWORK ERROR: Unknown network mode, cannot host.")
 
 
 # ============================================================
@@ -403,12 +420,15 @@ func _start_steam_host() -> void:
 # LOCAL CLIENT
 # ============================================================
 
+## Joining always sets network_mode to match, so a client never
+## ends up in a mismatched state relative to what it's actually
+## connecting to.
 func join_local_game() -> void:
 	print("NETWORK: Connecting to local host...")
 
 	_close_peer()
 
-	network_mode = NetworkMode.LOCAL
+	use_local_network()
 
 	peer_ids.clear()
 	spawn_assignments.clear()
@@ -450,7 +470,7 @@ func join_steam_game(host_steam_id: int) -> void:
 
 	_close_peer()
 
-	network_mode = NetworkMode.STEAM
+	use_steam_network()
 
 	steam_host_id = host_steam_id
 
@@ -517,14 +537,68 @@ func _wait_for_world() -> void:
 
 
 func _world_ready() -> void:
+	print(
+		"NETWORK DEBUG: _world_ready() called.",
+		" | Local Peer: ", multiplayer.get_unique_id(),
+		" | Is Server: ", multiplayer.is_server(),
+		" | Mode: ", _mode_name()
+	)
+
 	_register_local_player_id()
-	_spawn_local_player()
 
-	if not multiplayer.is_server():
-		var server_peer_id := get_server_peer_id()
+	if multiplayer.is_server():
+		print("NETWORK DEBUG: THIS INSTANCE IS THE SERVER.")
 
-		if server_peer_id > 0:
-			client_world_ready.rpc_id(server_peer_id)
+		if not spawn_assignments.has(1):
+			spawn_assignments[1] = 0
+
+		print(
+			"NETWORK DEBUG: Host spawn assignment = ",
+			spawn_assignments[1]
+		)
+
+		_spawn_player_for_peer(1)
+		return
+
+	print(
+		"NETWORK DEBUG: THIS INSTANCE IS A CLIENT.",
+		" Waiting for server peer 1..."
+	)
+
+	var wait_time := 0.0
+	const MAX_WAIT_TIME := 10.0
+
+	while multiplayer.multiplayer_peer != null:
+		if multiplayer.get_peers().has(1):
+			break
+
+		await get_tree().process_frame
+
+		wait_time += get_process_delta_time()
+
+		if wait_time >= MAX_WAIT_TIME:
+			print(
+				"NETWORK ERROR: Timed out waiting for server peer 1."
+			)
+			return
+
+	if multiplayer.multiplayer_peer == null:
+		print(
+			"NETWORK ERROR: Multiplayer peer disappeared while waiting."
+		)
+		return
+
+	print(
+		"NETWORK DEBUG: Server peer 1 is connected.",
+		" Sending client_world_ready."
+	)
+
+	var steam_id := 0
+
+	if STEAM:
+		steam_id = int(Steam.getSteamID())
+
+	client_world_ready.rpc_id(1, steam_id)
 
 
 # ============================================================
@@ -532,7 +606,7 @@ func _world_ready() -> void:
 # ============================================================
 
 @rpc("any_peer", "reliable")
-func client_world_ready() -> void:
+func client_world_ready(steam_id: int = 0) -> void:
 	if not multiplayer.is_server():
 		return
 
@@ -542,6 +616,45 @@ func client_world_ready() -> void:
 		"NETWORK: Client world ready: ",
 		peer_id
 	)
+
+	# Register Steam identity separately from Godot peer ID.
+	if STEAM and steam_id > 0:
+		peer_ids[peer_id] = steam_id
+
+		print(
+			"NETWORK: Registered Steam player: ",
+			steam_id,
+			" for peer ",
+			peer_id
+		)
+
+	# Assign a spawn slot.
+	if not spawn_assignments.has(peer_id):
+		spawn_assignments[peer_id] = _get_next_spawn_index()
+
+	# Spawn the client for everyone.
+	_spawn_player_for_peer(peer_id)
+
+	# Send all existing players to this client.
+	for existing_peer_id in get_connected_peer_ids():
+		if existing_peer_id == peer_id:
+			continue
+
+		if not world_has_player(existing_peer_id):
+			continue
+
+		var existing_spawn_index := 0
+
+		if spawn_assignments.has(existing_peer_id):
+			existing_spawn_index = int(
+				spawn_assignments[existing_peer_id]
+			)
+
+		spawn_player.rpc_id(
+			peer_id,
+			existing_peer_id,
+			existing_spawn_index
+		)
 
 	_send_existing_network_objects(peer_id)
 
@@ -601,25 +714,39 @@ func _find_network_spawnpoints(
 # PLAYER SPAWNING
 # ============================================================
 
-func _spawn_local_player() -> void:
-	var world := get_tree().current_scene
-
-	if world == null:
-		return
-
-	var player_spawns := world.get_node_or_null(
-		"PlayerSpawns"
-	)
-
-	if player_spawns == null:
+func _spawn_player_for_peer(peer_id: int) -> void:
+	if not multiplayer.is_server():
 		print(
-			"NETWORK ERROR: PlayerSpawns not found."
+			"NETWORK DEBUG: _spawn_player_for_peer() ignored because this is not the server."
 		)
 		return
 
-	var peer_id := multiplayer.get_unique_id()
+	print(
+		"NETWORK DEBUG: Server spawning peer ",
+		peer_id
+	)
+
+	var world := get_tree().current_scene
+
+	if world == null:
+		print("NETWORK DEBUG: abort — current_scene is null.")
+		return
+
+	var player_spawns := world.get_node_or_null("PlayerSpawns")
+
+	if player_spawns == null:
+		print(
+			"NETWORK ERROR: PlayerSpawns not found under ",
+			world.get_path()
+		)
+		return
 
 	if world.get_node_or_null(str(peer_id)) != null:
+		print(
+			"NETWORK DEBUG: Player ",
+			peer_id,
+			" already exists."
+		)
 		return
 
 	var spawn_points: Array[Node3D] = []
@@ -634,7 +761,15 @@ func _spawn_local_player() -> void:
 		)
 		return
 
-	var spawn_index := _get_local_spawn_index(peer_id)
+	var spawn_index := _get_spawn_index(peer_id)
+
+	print(
+		"NETWORK DEBUG: Calling spawn_player.rpc(",
+		peer_id,
+		", ",
+		spawn_index,
+		")"
+	)
 
 	spawn_player.rpc(
 		peer_id,
@@ -642,7 +777,7 @@ func _spawn_local_player() -> void:
 	)
 
 
-func _get_local_spawn_index(peer_id: int) -> int:
+func _get_spawn_index(peer_id: int) -> int:
 	if multiplayer.is_server():
 		if spawn_assignments.has(peer_id):
 			return int(spawn_assignments[peer_id])
@@ -656,7 +791,7 @@ func _get_local_spawn_index(peer_id: int) -> int:
 	if spawn_assignments.has(peer_id):
 		return int(spawn_assignments[peer_id])
 
-	if network_mode == NetworkMode.LOCAL:
+	if LOCAL:
 		return clampi(
 			peer_id - 1,
 			0,
@@ -698,9 +833,12 @@ func spawn_player(
 	peer_id: int,
 	spawn_index: int
 ) -> void:
+	print("NETWORK DEBUG: spawn_player RPC received for peer ", peer_id)
+
 	var world := get_tree().current_scene
 
 	if world == null:
+		print("NETWORK DEBUG: spawn_player abort — current_scene is null.")
 		return
 
 	var player_spawns := world.get_node_or_null(
@@ -708,9 +846,15 @@ func spawn_player(
 	)
 
 	if player_spawns == null:
+		print("NETWORK DEBUG: spawn_player abort — PlayerSpawns not found.")
 		return
 
 	if world.get_node_or_null(str(peer_id)) != null:
+		print(
+			"NETWORK DEBUG: spawn_player abort — node '",
+			peer_id,
+			"' already exists."
+		)
 		return
 
 	var spawn_points: Array[Node3D] = []
@@ -720,6 +864,7 @@ func spawn_player(
 			spawn_points.append(child)
 
 	if spawn_points.is_empty():
+		print("NETWORK DEBUG: spawn_player abort — no spawn points.")
 		return
 
 	spawn_index = clampi(
@@ -777,58 +922,26 @@ func _on_peer_connected(peer_id: int) -> void:
 	if not multiplayer.is_server():
 		return
 
-	var spawn_index := _get_next_spawn_index()
+	# Peer 1 is the host.
+	if peer_id == 1:
+		return
 
-	spawn_assignments[peer_id] = spawn_index
+	if not spawn_assignments.has(peer_id):
+		var spawn_index := _get_next_spawn_index()
+
+		spawn_assignments[peer_id] = spawn_index
+
+		print(
+			"NETWORK: Assigned peer ",
+			peer_id,
+			" spawn slot ",
+			spawn_index
+		)
 
 	print(
-		"NETWORK: Assigned peer ",
+		"NETWORK: Waiting for peer ",
 		peer_id,
-		" spawn slot ",
-		spawn_index
-	)
-
-	spawn_player.rpc(
-		peer_id,
-		spawn_index
-	)
-
-	for existing_peer_id in multiplayer.get_peers():
-		if existing_peer_id == peer_id:
-			continue
-
-		var existing_spawn_index := 0
-
-		if spawn_assignments.has(existing_peer_id):
-			existing_spawn_index = int(
-				spawn_assignments[existing_peer_id]
-			)
-		else:
-			existing_spawn_index = _get_next_spawn_index()
-
-			spawn_assignments[existing_peer_id] = (
-				existing_spawn_index
-			)
-
-		spawn_player.rpc_id(
-			peer_id,
-			existing_peer_id,
-			existing_spawn_index
-		)
-
-	var host_peer_id := get_server_peer_id()
-
-	var host_spawn_index := 0
-
-	if spawn_assignments.has(host_peer_id):
-		host_spawn_index = int(
-			spawn_assignments[host_peer_id]
-		)
-
-	spawn_player.rpc_id(
-		peer_id,
-		host_peer_id,
-		host_spawn_index
+		" to report world ready."
 	)
 
 
@@ -905,3 +1018,12 @@ func _close_peer() -> void:
 
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer = null
+
+
+func world_has_player(peer_id: int) -> bool:
+	var world := get_tree().current_scene
+
+	if world == null:
+		return false
+
+	return world.get_node_or_null(str(peer_id)) != null
