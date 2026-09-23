@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const CURRENT_VERSION := "0.1.3"
+const CURRENT_VERSION := "0.1.4"
 const VERSION_URL := "https://raw.githubusercontent.com/ripxenith/DEADWEIGHT/refs/heads/main/version.json"
 
 
@@ -40,17 +40,24 @@ func _ready() -> void:
 func _on_host_game_pressed() -> void:
 	print_debug("Host Game pressed.")
 
-	if not SteamManager.is_ready():
+	if not SteamManager.is_ready() and Network.STEAM:
 		print_debug("Steam is not ready. Cannot create lobby.")
 		return
 
 	print_debug("Creating Steam lobby...")
-
-	SteamManager.create_lobby()
+	
+	if Network.STEAM:
+		SteamManager.create_lobby()
+	if Network.LOCAL:
+		Network.use_local_network()
+		Network.host_game()
 
 
 func _on_join_game_pressed() -> void:
-	print_debug("Join Game is handled through Steam invites.")
+	if Network.LOCAL:
+		Network.join_local_game()
+	if Network.STEAM:
+		print_debug("Join Game handled through Steam invites.")
 
 
 func _on_invite_button_pressed() -> void:

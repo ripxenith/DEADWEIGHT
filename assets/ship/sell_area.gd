@@ -43,7 +43,7 @@ func update_haul_label() -> void:
 	if haul_label == null:
 		return
 
-	haul_label.text = "$" + str(current_haul)
+	haul_label.text = "₡" + str(current_haul)
 
 
 # ============================================================

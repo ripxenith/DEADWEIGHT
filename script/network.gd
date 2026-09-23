@@ -681,7 +681,46 @@ func _send_existing_network_objects(peer_id: int) -> void:
 		" network spawn systems for peer ",
 		peer_id
 	)
+	
+	# Send all existing players to this client.
+	for existing_peer_id in get_connected_peer_ids():
+		if existing_peer_id == peer_id:
+			continue
 
+		if not world_has_player(existing_peer_id):
+			continue
+
+		var existing_spawn_index := 0
+
+		if spawn_assignments.has(existing_peer_id):
+			existing_spawn_index = int(
+				spawn_assignments[existing_peer_id]
+			)
+
+		spawn_player.rpc_id(
+			peer_id,
+			existing_peer_id,
+			existing_spawn_index
+		)
+
+		# Make sure the existing player's synchronizer actually
+		# pushes state to the newly connected peer.
+		if world != null:
+			var existing_player := world.get_node_or_null(
+				str(existing_peer_id)
+			)
+
+			if existing_player != null:
+				var sync := (
+					existing_player.get_node_or_null(
+						"MultiplayerSynchronizer"
+					) as MultiplayerSynchronizer
+				)
+
+				if sync != null:
+					sync.set_visibility_for(peer_id, true)
+					sync.update_visibility(peer_id)
+	
 	for spawnpoint in network_objects:
 		if not is_instance_valid(spawnpoint):
 			continue
@@ -692,7 +731,8 @@ func _send_existing_network_objects(peer_id: int) -> void:
 			" to peer ",
 			peer_id
 		)
-
+		
+		
 		spawnpoint.send_existing_to_peer(peer_id)
 
 
@@ -879,13 +919,13 @@ func spawn_player(
 
 	player.name = str(peer_id)
 
-	world.add_child(
-		player,
+	player.set_multiplayer_authority(
+		peer_id,
 		true
 	)
 
-	player.set_multiplayer_authority(
-		peer_id,
+	world.add_child(
+		player,
 		true
 	)
 

@@ -29,9 +29,10 @@ ssao_enabled = true
 ssil_enabled = true
 glow_enabled = true
 glow_normalized = true
-glow_intensity = 0.25
-glow_strength = 0.5
+glow_intensity = 0.85
+glow_strength = 0.7
 glow_bloom = 0.08
+glow_blend_mode = 0
 adjustment_enabled = true
 adjustment_brightness = 0.75
 adjustment_contrast = 1.11
@@ -183,7 +184,7 @@ material = SubResource("ShaderMaterial_yhp2s")
 [node name="SunLight" type="DirectionalLight3D" parent="Background" unique_id=817869054]
 transform = Transform3D(-0.4997463, 0.25137997, -0.8288919, -0.021927956, 0.95298165, 0.30223352, 0.8658942, 0.16921599, -0.47073683, -26533.445, 12098.786, -15240.4)
 light_color = Color(1, 0.98933333, 0.98, 1)
-light_energy = 3.627
+light_energy = 5.0
 light_specular = 1.853
 light_cull_mask = 4294443007
 shadow_enabled = true
@@ -217,7 +218,7 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 53, 
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6, 0, -44)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=554076199]
-transform = Transform3D(0.25881907, 0, -0.9659258, 0, 1, 0, 0.9659259, 0, 0.25881907, 11.428812, 3, -22.669659)
+transform = Transform3D(-0.9659259, 0, 0.25881904, 0, 1, 0, -0.25881904, 0, -0.9659259, 14.428812, 3, -44.66966)
 far = 999999.0
 
 [node name="Colony" parent="." unique_id=1563406623 instance=ExtResource("9_ot5wp")]
@@ -236,4 +237,10 @@ metadata/_custom_type_script = "uid://vx53fdkmq7l0"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 43, 0, -33.4)
 script = ExtResource("8_ug8wy")
 possible_items = Array[PackedScene]([ExtResource("1_bb2yp"), ExtResource("10_jqw3q")])
+metadata/_custom_type_script = "uid://vx53fdkmq7l0"
+
+[node name="Sellable_Spawnpoint3" type="Marker3D" parent="." unique_id=1967294931]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.6, 0, -33.4)
+script = ExtResource("8_ug8wy")
+possible_items = Array[PackedScene]([ExtResource("10_jqw3q")])
 metadata/_custom_type_script = "uid://vx53fdkmq7l0"

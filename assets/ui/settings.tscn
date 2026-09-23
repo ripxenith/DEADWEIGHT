@@ -275,6 +275,7 @@ layout_mode = 2
 text = "yes"
 
 [node name="BTN_Apply" type="Button" parent="SettingsMenu" unique_id=1458980861]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5

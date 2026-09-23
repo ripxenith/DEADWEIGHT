@@ -134,7 +134,7 @@ func update_price_display() -> void:
 	if price_label == null:
 		return
 
-	price_label.text = "$" + str(sell_value)
+	price_label.text = "₡" + str(sell_value)
 
 	price_label.modulate = get_rarity_color(
 		rarity

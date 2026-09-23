@@ -57,6 +57,12 @@ var is_sprinting := false
 @export var zero_g_boost_multiplier := 2.0
 @export var zero_g_rotation_speed := 1.5
 
+@export var zero_g_roll_acceleration := 8.0
+@export var zero_g_roll_max_speed := 3.0
+@export var zero_g_roll_deceleration := 5.0
+
+var zero_g_roll_velocity := 0.0
+
 @export var base_max_thruster_fuel := 100.0
 @export var thruster_fuel_per_upgrade := 20.0
 
@@ -146,6 +152,8 @@ var player_display_name: String = "Player"
 var pause_menu_open := false
 
 var settings_menu: CanvasLayer = null
+
+@onready var moving_animationtree: AnimationTree = $MovingAnimationTree
 
 
 # ============================================================
@@ -265,7 +273,10 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	add_to_group("Players")
 
-	player_id_label.text = player_display_name
+	if Network.LOCAL:
+		player_display_name = name
+	elif Network.STEAM:
+		player_display_name = Steam.getPersonaName()
 
 	# --------------------------------------------------------
 	# CAMERA
@@ -354,6 +365,7 @@ func _ready() -> void:
 
 		player_ui.show()
 		playermodel.hide()
+		#player_id_label.hide()
 		settings_menu = get_tree().get_first_node_in_group("SettingsMenu")
 
 	# --------------------------------------------------------
@@ -363,6 +375,9 @@ func _ready() -> void:
 	else:
 		player_ui.hide()
 		playermodel.show()
+		player_id_label.show()
+	
+	player_id_label.text = str(player_display_name)
 
 
 # ============================================================
@@ -1125,7 +1140,24 @@ func handle_zero_g_roll(
 	if Input.is_action_pressed("roll_right"):
 		roll_input += 1.0
 
-	if roll_input == 0.0:
+	# Build rotational momentum while holding the key.
+	if roll_input != 0.0:
+		zero_g_roll_velocity = move_toward(
+			zero_g_roll_velocity,
+			roll_input * zero_g_roll_max_speed,
+			zero_g_roll_acceleration * delta
+		)
+	else:
+		# Gradually bleed off roll momentum when released.
+		zero_g_roll_velocity = move_toward(
+			zero_g_roll_velocity,
+			0.0,
+			zero_g_roll_deceleration * delta
+		)
+
+	# Nothing left to rotate.
+	if is_zero_approx(zero_g_roll_velocity):
+		zero_g_roll_velocity = 0.0
 		return
 
 	var camera_position_before := (
@@ -1138,9 +1170,7 @@ func handle_zero_g_roll(
 
 	b = b.rotated(
 		roll_axis,
-		roll_input
-		* zero_g_rotation_speed
-		* delta
+		zero_g_roll_velocity * delta
 	)
 
 	global_transform.basis = (
@@ -1330,7 +1360,7 @@ func _process(_delta: float) -> void:
 
 	handle_throw()
 	handle_interaction()
-
+	handle_animations()
 
 # ============================================================
 # INTERACTION
@@ -2091,13 +2121,16 @@ func update_grab_ui() -> void:
 # SHIP CONTROL
 # ============================================================
 
-func set_ship_control(
-	ship: Node3D,
-	enabled: bool
-) -> void:
+func set_ship_control(ship: Node3D, active: bool) -> void:
+	controlling_ship = active
+	controlled_ship = ship if active else null
 
-	controlling_ship = enabled
+	# Stop player movement when entering the ship.
+	if active:
+		velocity = Vector3.ZERO
 
-	controlled_ship = (
-		ship if enabled else null
-	)
+
+func handle_animations():
+	var horizontal_velocity = Vector2(-velocity.x, velocity.z)
+	var speed = horizontal_velocity.normalized()
+	moving_animationtree.set("parameters/Locomotion/blend_position", speed)

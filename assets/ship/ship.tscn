@@ -1604,6 +1604,27 @@ spot_range = 9.860411
 spot_attenuation = -0.27
 spot_angle = 75.55474
 
+[node name="SpotLight3D4" type="SpotLight3D" parent="Cyclops" unique_id=1532833073]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 1, -9.6)
+shadow_enabled = true
+spot_range = 9.860411
+spot_attenuation = -0.27
+spot_angle = 75.55474
+
+[node name="SpotLight3D5" type="SpotLight3D" parent="Cyclops" unique_id=2077997614]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 1, -9.6)
+shadow_enabled = true
+spot_range = 78.43966
+spot_attenuation = -0.27
+spot_angle = 53.754463
+
+[node name="SpotLight3D6" type="SpotLight3D" parent="Cyclops" unique_id=576427191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, -9.6)
+shadow_enabled = true
+spot_range = 78.43966
+spot_attenuation = -0.27
+spot_angle = 53.754463
+
 [node name="Airlock" parent="Cyclops" unique_id=1727600900 instance=ExtResource("8_o01ar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 7)
 

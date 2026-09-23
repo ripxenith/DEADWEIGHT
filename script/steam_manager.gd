@@ -49,37 +49,40 @@ func _ready() -> void:
 
 	# GodotSteam versions can return different values here,
 	# so verify Steam itself is actually running.
-	if not Steam.isSteamRunning():
+	if Network.STEAM:
+		if not Steam.isSteamRunning():
 
-		print(
-			"STEAM ERROR: Steam is not running."
+			print(
+				"STEAM ERROR: Steam is not running."
+			)
+
+			steam_initialized = false
+			return
+
+
+		steam_initialized = true
+
+		STEAM_ID = int(
+			Steam.getSteamID()
 		)
 
-		steam_initialized = false
+		STEAM_USERNAME = Steam.getPersonaName()
+
+		print(
+			"STEAM: Initialized."
+		)
+
+		print(
+			"STEAM: ID: ",
+			STEAM_ID
+		)
+
+		print(
+			"STEAM: Username: ",
+			STEAM_USERNAME
+		)
+	else:
 		return
-
-
-	steam_initialized = true
-
-	STEAM_ID = int(
-		Steam.getSteamID()
-	)
-
-	STEAM_USERNAME = Steam.getPersonaName()
-
-	print(
-		"STEAM: Initialized."
-	)
-
-	print(
-		"STEAM: ID: ",
-		STEAM_ID
-	)
-
-	print(
-		"STEAM: Username: ",
-		STEAM_USERNAME
-	)
 
 
 	# --------------------------------------------------------
@@ -111,6 +114,9 @@ func _process(_delta: float) -> void:
 
 	if not steam_initialized:
 		return
+	if not Network.STEAM:
+		return
+	
 
 	Steam.run_callbacks()
 

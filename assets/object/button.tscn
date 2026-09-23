@@ -1,11 +1,8 @@
 [gd_scene format=3 uid="uid://3x3rteu38wsr"]
 
 [ext_resource type="Script" uid="uid://njafifplfhss" path="res://assets/object/button.gd" id="1_8gcae"]
-[ext_resource type="Texture2D" uid="uid://drojypr8i61oy" path="res://assets/texture/prototypes/light/texture_09.png" id="1_qxnch"]
 [ext_resource type="Texture2D" uid="uid://b8fgftw3necmf" path="res://assets/texture/prototypes/dark/texture_10.png" id="2_8gcae"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ym378"]
-albedo_texture = ExtResource("1_qxnch")
+[ext_resource type="Material" uid="uid://dkmktgndgra3t" path="res://assets/materials/button.tres" id="2_ym378"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_8p2v8"]
 
@@ -26,8 +23,8 @@ script = ExtResource("1_8gcae")
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D" unique_id=1180554463]
-transform = Transform3D(0.468, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_ym378")
+transform = Transform3D(0.263, 0, 0, 0, 0.756, 0, 0, 0, 0.756, 0, 0, 0)
+material_override = ExtResource("2_ym378")
 mesh = SubResource("BoxMesh_8p2v8")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="Node3D" unique_id=964909300]

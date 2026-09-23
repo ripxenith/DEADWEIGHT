@@ -38,7 +38,7 @@ properties/5/spawn = true
 properties/5/replication_mode = 1
 
 [node name="Crate" type="RigidBody3D" unique_id=1089639337 groups=["Grabbable"]]
-mass = 10.0
+mass = 15.0
 script = ExtResource("2_cmx3m")
 object_definition = SubResource("Resource_ebxgq")
 sell_value = 100
